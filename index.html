@@ -680,31 +680,86 @@ function renderData() {
 
 function showDetail(docId) {
   const e = entries.find(x => x._docId === docId); if (!e) return;
-  const sc = e.total;
-  const cls = sc >= 20 ? 'sb-hi' : sc >= 12 ? 'sb-mid' : sc > 0 ? 'sb-lo' : 'sb-none';
-  g('overlayCard').innerHTML = `
-    <button class="ov-close" onclick="g('overlay').classList.remove('on')">✕</button>
-    <div class="ov-num">#${esc(e.num)}${e.region ? ' · ' + esc(e.region) : ''}${e.reach ? ' · ' + esc(e.reach) : ''}</div>
-    <div class="ov-name">${esc(e.name)}</div>
-    ${e.scout ? `<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:14px">Scouted by ${esc(e.scout)}</div>` : ''}
-    ${e.what ? `<div class="ov-field"><h4>What they do</h4><p>${esc(e.what)}</p></div>` : ''}
-    ${e.why ? `<div class="ov-field"><h4>Why they do it</h4><p>${esc(e.why)}</p></div>` : ''}
-    ${e.how ? `<div class="ov-field"><h4>How + sustainability</h4><p>${esc(e.how)}</p></div>` : ''}
-    ${e.data ? `<div class="ov-field"><h4>Impact data</h4><p>${esc(e.data)}</p></div>` : ''}
-    ${e.audience || e.scale ? `<div class="ov-field"><h4>Audience + scale</h4><p>${[e.audience,e.scale].filter(Boolean).map(esc).join(' · ')}</p></div>` : ''}
-    ${e.notes ? `<div class="ov-field"><h4>Scout notes</h4><p>${esc(e.notes)}</p></div>` : ''}
-    ${sc > 0 ? `<div class="ov-scores">
-      <div class="ov-score"><div class="ov-score-n">${e.scores.depth || '—'}</div><div class="ov-score-l">Impact depth</div></div>
-      <div class="ov-score"><div class="ov-score-n">${e.scores.sustain || '—'}</div><div class="ov-score-l">Sustainability</div></div>
-      <div class="ov-score"><div class="ov-score-n">${e.scores.why || '—'}</div><div class="ov-score-l">WHY clarity</div></div>
-      <div class="ov-score"><div class="ov-score-n">${e.scores.data || '—'}</div><div class="ov-score-l">Data quality</div></div>
-      <div class="ov-score" style="grid-column:span 2"><div class="ov-score-n"><span class="score-badge ${cls}">${sc}/25</span></div><div class="ov-score-l">Total score</div></div>
-    </div>` : ''}
-    <div style="margin-top:16px;display:flex;gap:8px">
-      <button class="btn danger" onclick="delEntry('${docId}')" style="flex:1;font-size:11px">Remove team</button>
-      <button class="btn" onclick="g('overlay').classList.remove('on')" style="flex:1;font-size:11px">Close</button>
-    </div>`;
-  g('overlay').classList.add('on');
+  let isEditing = false;
+  let edited = { ...e };
+
+  function render(editMode) {
+    const sc = edited.total;
+    const cls = sc >= 20 ? 'sb-hi' : sc >= 12 ? 'sb-mid' : sc > 0 ? 'sb-lo' : 'sb-none';
+    g('overlayCard').innerHTML = `
+      <button class="ov-close" onclick="g('overlay').classList.remove('on')">✕</button>
+      <div class="ov-num">#${editMode ? `<input class='ov-edit-input' id='edit-num' value='${esc(edited.num)}'>` : esc(edited.num)}${edited.region ? ' · ' + (editMode ? `<input class='ov-edit-input' id='edit-region' value='${esc(edited.region)}'>` : esc(edited.region)) : ''}${edited.reach ? ' · ' + (editMode ? `<input class='ov-edit-input' id='edit-reach' value='${esc(edited.reach)}'>` : esc(edited.reach)) : ''}</div>
+      <div class="ov-name">${editMode ? `<input class='ov-edit-input' id='edit-name' value='${esc(edited.name)}'>` : esc(edited.name)}</div>
+      ${edited.scout ? `<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:14px">Scouted by ${editMode ? `<input class='ov-edit-input' id='edit-scout' value='${esc(edited.scout)}'>` : esc(edited.scout)}</div>` : ''}
+      ${editMode ? `<div class='ov-field'><h4>What they do</h4><textarea class='ov-edit-textarea' id='edit-what'>${esc(edited.what)}</textarea></div>` : (edited.what ? `<div class="ov-field"><h4>What they do</h4><p>${esc(edited.what)}</p></div>` : '')}
+      ${editMode ? `<div class='ov-field'><h4>Why they do it</h4><textarea class='ov-edit-textarea' id='edit-why'>${esc(edited.why)}</textarea></div>` : (edited.why ? `<div class="ov-field"><h4>Why they do it</h4><p>${esc(edited.why)}</p></div>` : '')}
+      ${editMode ? `<div class='ov-field'><h4>How + sustainability</h4><textarea class='ov-edit-textarea' id='edit-how'>${esc(edited.how)}</textarea></div>` : (edited.how ? `<div class="ov-field"><h4>How + sustainability</h4><p>${esc(edited.how)}</p></div>` : '')}
+      ${editMode ? `<div class='ov-field'><h4>Impact data</h4><textarea class='ov-edit-textarea' id='edit-data'>${esc(edited.data)}</textarea></div>` : (edited.data ? `<div class="ov-field"><h4>Impact data</h4><p>${esc(edited.data)}</p></div>` : '')}
+      ${editMode ? `<div class='ov-field'><h4>Audience + scale</h4><input class='ov-edit-input' id='edit-audience' value='${esc(edited.audience || '')}'><input class='ov-edit-input' id='edit-scale' value='${esc(edited.scale || '')}'> </div>` : (edited.audience || edited.scale ? `<div class="ov-field"><h4>Audience + scale</h4><p>${[edited.audience,edited.scale].filter(Boolean).map(esc).join(' · ')}</p></div>` : '')}
+      ${editMode ? `<div class='ov-field'><h4>Scout notes</h4><textarea class='ov-edit-textarea' id='edit-notes'>${esc(edited.notes || '')}</textarea></div>` : (edited.notes ? `<div class="ov-field"><h4>Scout notes</h4><p>${esc(edited.notes)}</p></div>` : '')}
+      ${sc > 0 && !editMode ? `<div class="ov-scores">
+        <div class="ov-score"><div class="ov-score-n">${edited.scores.depth || '—'}</div><div class="ov-score-l">Impact depth</div></div>
+        <div class="ov-score"><div class="ov-score-n">${edited.scores.sustain || '—'}</div><div class="ov-score-l">Sustainability</div></div>
+        <div class="ov-score"><div class="ov-score-n">${edited.scores.why || '—'}</div><div class="ov-score-l">WHY clarity</div></div>
+        <div class="ov-score"><div class="ov-score-n">${edited.scores.data || '—'}</div><div class="ov-score-l">Data quality</div></div>
+        <div class="ov-score" style="grid-column:span 2"><div class="ov-score-n"><span class="score-badge ${cls}">${sc}/25</span></div><div class="ov-score-l">Total score</div></div>
+      </div>` : ''}
+      <div style="margin-top:16px;display:flex;gap:8px">
+        <button class="btn danger" onclick="delEntry('${docId}')" style="flex:1;font-size:11px">Remove team</button>
+        ${editMode
+          ? `<button class="btn primary" id="saveEditBtn" style="flex:1;font-size:11px">Save</button>`
+          : `<button class="btn" id="editBtn" style="flex:1;font-size:11px">Edit</button>`}
+        <button class="btn" onclick="g('overlay').classList.remove('on')" style="flex:1;font-size:11px">Close</button>
+      </div>`;
+    g('overlay').classList.add('on');
+    if (!editMode && document.getElementById('editBtn')) {
+      document.getElementById('editBtn').onclick = () => {
+        isEditing = true;
+        render(true);
+      };
+    }
+    if (editMode && document.getElementById('saveEditBtn')) {
+      document.getElementById('saveEditBtn').onclick = async () => {
+        // Collect edited values
+        edited.num = g('edit-num').value.trim();
+        edited.name = g('edit-name').value.trim();
+        edited.scout = g('edit-scout') ? g('edit-scout').value.trim() : '';
+        edited.region = g('edit-region') ? g('edit-region').value.trim() : '';
+        edited.reach = g('edit-reach') ? g('edit-reach').value.trim() : '';
+        edited.what = g('edit-what') ? g('edit-what').value.trim() : '';
+        edited.why = g('edit-why') ? g('edit-why').value.trim() : '';
+        edited.how = g('edit-how') ? g('edit-how').value.trim() : '';
+        edited.data = g('edit-data') ? g('edit-data').value.trim() : '';
+        edited.audience = g('edit-audience') ? g('edit-audience').value.trim() : '';
+        edited.scale = g('edit-scale') ? g('edit-scale').value.trim() : '';
+        edited.notes = g('edit-notes') ? g('edit-notes').value.trim() : '';
+        // Save to Firestore
+        try {
+          await updateDoc(doc(db, 'teams', docId), {
+            num: edited.num,
+            name: edited.name,
+            scout: edited.scout,
+            region: edited.region,
+            reach: edited.reach,
+            what: edited.what,
+            why: edited.why,
+            how: edited.how,
+            data: edited.data,
+            audience: edited.audience,
+            scale: edited.scale,
+            notes: edited.notes
+          });
+          isEditing = false;
+          toast('Team updated!');
+          render(false);
+        } catch(e) {
+          console.error(e);
+          toast('Update failed', true);
+        }
+      };
+    }
+  }
+  render(false);
 }
 
 // ── CSV Export ────────────────────────────────────────
@@ -882,6 +937,21 @@ g('overlay').addEventListener('click', function(e) {
 
 // Init count
 updateCount();
+
+// Add styles for edit mode
+const style = document.createElement('style');
+style.textContent = `
+  .ov-edit-input {
+    width: 100%; padding: 7px 10px; border: 1px solid var(--border); border-radius: 3px;
+    font-family: var(--sans); font-size: 15px; margin-bottom: 7px; margin-top: 2px; background: var(--surface2); color: var(--text);
+  }
+  .ov-edit-textarea {
+    width: 100%; min-height: 60px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 3px;
+    font-family: var(--sans); font-size: 15px; margin-bottom: 7px; margin-top: 2px; background: var(--surface2); color: var(--text);
+    resize: vertical;
+  }
+`;
+document.head.appendChild(style);
 </script>
 
 </body>
