@@ -468,7 +468,7 @@ let { initializeApp, getFirestore, collection, doc, addDoc, deleteDoc,
 window.addEventListener('fbready', () => {
   ({ initializeApp, getFirestore, collection, doc, addDoc, deleteDoc,
      onSnapshot, query, serverTimestamp, writeBatch, getDocs, updateDoc } = window.__fbReady);
-  const app = initializeApp(FIREBASE_CONFIG);
+  const app = initializeApp(firebaseConfig); // was FIREBASE_CONFIG
   db = getFirestore(app);
   subscribeToTeams();
 });
@@ -480,6 +480,7 @@ function subscribeToTeams() {
   unsubscribe = onSnapshot(col,
     (snap) => {
       entries = snap.docs.map(d => ({ ...d.data(), _docId: d.id }));
+      console.log('Loaded teams from Firestore:', entries); // <-- See your data here
       entries.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
       updateCount();
       const active = ['scout','data','analysis'].find(n => g('panel-'+n).classList.contains('on'));
@@ -878,10 +879,6 @@ function toast(msg, warn) {
 g('overlay').addEventListener('click', function(e) {
   if (e.target === this) this.classList.remove('on');
 });
-
-// Enter key in room code input
-g('ri-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
-g('ri-name').addEventListener('keydown', e => { if (e.key === 'Enter') g('ri-code').focus(); });
 
 // Init count
 updateCount();
