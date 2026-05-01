@@ -1,1388 +1,1137 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>Impact Scout — FRC Worlds 2026</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
-    rel="stylesheet">
-  <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --bg: #f5f2ed;
-      --surface: #ffffff;
-      --surface2: #f0ece5;
-      --border: #ddd8d0;
-      --border-dark: #b8b0a4;
-      --text: #1a1714;
-      --text2: #6b6560;
-      --text3: #9e9890;
-      --accent: #c84b2f;
-      --accent-bg: #fdf1ee;
-      --blue: #2563a8;
-      --blue-bg: #eef3fb;
-      --green: #1a6b3c;
-      --green-bg: #eaf4ef;
-      --amber: #8c5a00;
-      --amber-bg: #fef7ea;
-      --mono: 'IBM Plex Mono', monospace;
-      --sans: 'IBM Plex Sans', sans-serif;
-    }
-
-    body {
-      font-family: var(--sans);
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      font-size: 15px;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .app {
-      max-width: 480px;
-      margin: 0 auto;
-      padding: 16px 14px 80px;
-    }
-
-    .hdr {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 1.5px solid var(--text);
-    }
-
-    .hdr-title {
-      font-family: var(--mono);
-      font-size: 18px;
-      font-weight: 600;
-      letter-spacing: -0.5px;
-    }
-
-    .hdr-sub {
-      font-size: 11px;
-      color: var(--text2);
-      margin-top: 3px;
-      font-family: var(--mono);
-    }
-
-    .hdr-right {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 4px;
-    }
-
-    .hdr-count {
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 500;
-      background: var(--text);
-      color: var(--bg);
-      padding: 4px 10px;
-      border-radius: 2px;
-    }
-
-    .sync-badge {
-      font-family: var(--mono);
-      font-size: 10px;
-      padding: 3px 8px;
-      border-radius: 2px;
-    }
-
-    .s-online {
-      background: var(--green-bg);
-      color: var(--green);
-    }
-
-    .s-offline {
-      background: var(--amber-bg);
-      color: var(--amber);
-    }
-
-    .s-syncing {
-      background: var(--blue-bg);
-      color: var(--blue);
-    }
-
-    .nav {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 480px;
-      background: var(--surface);
-      border-top: 1.5px solid var(--text);
-      display: flex;
-      z-index: 90;
-    }
-
-    .nav-btn {
-      flex: 1;
-      padding: 12px 8px 14px;
-      border: none;
-      background: none;
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 500;
-      color: var(--text3);
-      cursor: pointer;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-      border-right: 0.5px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .nav-btn:last-child {
-      border-right: none;
-    }
-
-    .nav-btn.on {
-      color: var(--text);
-    }
-
-    .nav-btn.on .ndot {
-      background: var(--accent);
-    }
-
-    .ndot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: transparent;
-    }
-
-    .panel {
-      display: none;
-    }
-
-    .panel.on {
-      display: block;
-      animation: up 0.2s ease;
-    }
-
-    @keyframes up {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-
-      to {
-        opacity: 1;
-        transform: none;
-      }
-    }
-
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 18px;
-      margin-bottom: 12px;
-    }
-
-    .card-title {
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      color: var(--text2);
-      margin-bottom: 14px;
-      padding-bottom: 10px;
-      border-bottom: 0.5px solid var(--border);
-    }
-
-    .field {
-      margin-bottom: 14px;
-    }
-
-    .field:last-child {
-      margin-bottom: 0;
-    }
-
-    .field>label {
-      display: block;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text2);
-      margin-bottom: 5px;
-      font-family: var(--mono);
-    }
-
-    .field input,
-    .field textarea,
-    .field select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      background: var(--surface2);
-      color: var(--text);
-      font-family: var(--sans);
-      font-size: 15px;
-      outline: none;
-      -webkit-appearance: none;
-    }
-
-    .field input:focus,
-    .field textarea:focus,
-    .field select:focus {
-      border-color: var(--text);
-      background: var(--surface);
-    }
-
-    .field textarea {
-      min-height: 100px;
-      resize: vertical;
-      line-height: 1.55;
-    }
-
-    .field-hint {
-      font-size: 11px;
-      color: var(--text3);
-      margin-top: 5px;
-      line-height: 1.45;
-      font-family: var(--mono);
-    }
-
-    .row2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .sg {
-      margin-bottom: 14px;
-    }
-
-    .sg:last-of-type {
-      margin-bottom: 0;
-    }
-
-    .slbl {
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--text2);
-      font-family: var(--mono);
-      margin-bottom: 6px;
-    }
-
-    .pills {
-      display: flex;
-      gap: 6px;
-    }
-
-    .pill {
-      flex: 1;
-      padding: 10px 4px;
-      text-align: center;
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      background: var(--surface2);
-      color: var(--text2);
-      font-family: var(--mono);
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-
-    .pill:active {
-      opacity: 0.7;
-    }
-
-    .pill.s1.on {
-      background: #fdf1ee;
-      border-color: #c84b2f;
-      color: #c84b2f;
-    }
-
-    .pill.s2.on {
-      background: #fef7ea;
-      border-color: #d97706;
-      color: #8c5a00;
-    }
-
-    .pill.s3.on {
-      background: #f0ece5;
-      border-color: #6b6560;
-      color: #1a1714;
-    }
-
-    .pill.s4.on {
-      background: #eaf4ef;
-      border-color: #1a6b3c;
-      color: #1a6b3c;
-    }
-
-    .pill.s5.on {
-      background: #eef3fb;
-      border-color: #2563a8;
-      color: #2563a8;
-    }
-
-    .btn {
-      padding: 12px 20px;
-      border-radius: 3px;
-      font-family: var(--mono);
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      border: 1.5px solid var(--text);
-      background: var(--surface);
-      color: var(--text);
-      text-transform: uppercase;
-    }
-
-    .btn.primary {
-      background: var(--text);
-      color: var(--bg);
-    }
-
-    .btn.danger {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: var(--surface);
-    }
-
-    .btn-row {
-      display: flex;
-      gap: 8px;
-    }
-
-    .btn-row .btn {
-      flex: 1;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .stat {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 14px;
-    }
-
-    .stat-n {
-      font-family: var(--mono);
-      font-size: 26px;
-      font-weight: 600;
-    }
-
-    .stat-l {
-      font-size: 10px;
-      color: var(--text3);
-      margin-top: 3px;
-      font-family: var(--mono);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .search {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      background: var(--surface);
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 13px;
-      outline: none;
-      margin-bottom: 10px;
-    }
-
-    .search:focus {
-      border-color: var(--text);
-    }
-
-    .trow {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 14px;
-      margin-bottom: 8px;
-      cursor: pointer;
-    }
-
-    .trow:active {
-      border-color: var(--text);
-    }
-
-    .tr-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .tr-num {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text3);
-    }
-
-    .tr-name {
-      font-size: 15px;
-      font-weight: 500;
-      margin-top: 1px;
-    }
-
-    .tr-reg {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text3);
-      margin-top: 3px;
-    }
-
-    .tr-what {
-      font-size: 12px;
-      color: var(--text2);
-      margin-top: 8px;
-      line-height: 1.45;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .tr-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 8px;
-    }
-
-    .tag {
-      font-family: var(--mono);
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 2px;
-    }
-
-    .tb {
-      background: var(--blue-bg);
-      color: var(--blue);
-    }
-
-    .tg {
-      background: var(--green-bg);
-      color: var(--green);
-    }
-
-    .ta {
-      background: var(--amber-bg);
-      color: var(--amber);
-    }
-
-    .tr {
-      background: var(--accent-bg);
-      color: var(--accent);
-    }
-
-    .sbadge {
-      font-family: var(--mono);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 2px;
-      white-space: nowrap;
-    }
-
-    .shi {
-      background: var(--green-bg);
-      color: var(--green);
-    }
-
-    .smi {
-      background: var(--amber-bg);
-      color: var(--amber);
-    }
-
-    .slo {
-      background: var(--accent-bg);
-      color: var(--accent);
-    }
-
-    .sno {
-      background: var(--surface2);
-      color: var(--text3);
-    }
-
-    .empty {
-      text-align: center;
-      padding: 48px 20px;
-      color: var(--text3);
-      font-family: var(--mono);
-      font-size: 12px;
-      line-height: 1.7;
-    }
-
-    .ancard {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      margin-bottom: 12px;
-      overflow: hidden;
-    }
-
-    .anhdr {
-      padding: 12px 16px;
-      border-bottom: 0.5px solid var(--border);
-      background: var(--surface2);
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--text2);
-    }
-
-    .anbody {
-      padding: 14px 16px;
-    }
-
-    .toprow {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      padding: 10px 0;
-      border-bottom: 0.5px solid var(--border);
-    }
-
-    .toprow:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .toprank {
-      font-family: var(--mono);
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--text3);
-      min-width: 30px;
-    }
-
-    .topinfo {
-      flex: 1;
-    }
-
-    .topname {
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .topdetail {
-      font-size: 11px;
-      color: var(--text2);
-      margin-top: 3px;
-      line-height: 1.45;
-      font-family: var(--mono);
-    }
-
-    .topquote {
-      font-size: 12px;
-      color: var(--text2);
-      margin-top: 5px;
-      font-style: italic;
-      line-height: 1.45;
-      padding-left: 8px;
-      border-left: 2px solid var(--border-dark);
-    }
-
-    .brow {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 7px 0;
-      border-bottom: 0.5px solid var(--border);
-    }
-
-    .brow:last-child {
-      border-bottom: none;
-    }
-
-    .bname {
-      font-size: 12px;
-      color: var(--text);
-      flex: none;
-      width: 155px;
-      line-height: 1.3;
-    }
-
-    .bbg {
-      flex: 1;
-      height: 5px;
-      background: var(--border);
-      border-radius: 1px;
-      overflow: hidden;
-    }
-
-    .bbar {
-      height: 100%;
-      background: var(--text);
-      border-radius: 1px;
-    }
-
-    .bct {
-      font-family: var(--mono);
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text2);
-      min-width: 16px;
-      text-align: right;
-    }
-
-    .tchip {
-      display: inline-block;
-      font-family: var(--mono);
-      font-size: 10px;
-      padding: 4px 9px;
-      border-radius: 2px;
-      margin: 3px 3px 0 0;
-      background: var(--surface2);
-      color: var(--text2);
-      border: 0.5px solid var(--border);
-    }
-
-    .irow {
-      display: flex;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 0.5px solid var(--border);
-    }
-
-    .irow:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .idot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      flex-shrink: 0;
-      margin-top: 5px;
-    }
-
-    .itext {
-      font-size: 13px;
-      color: var(--text);
-      line-height: 1.55;
-    }
-
-    .overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(26, 23, 20, 0.6);
-      z-index: 80;
-      overflow-y: auto;
-      padding: 20px 14px;
-    }
-
-    .overlay.on {
-      display: block;
-    }
-
-    .ovcard {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 20px;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    .ovcls {
-      float: right;
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      color: var(--text2);
-      padding: 2px 4px;
-    }
-
-    .ovnum {
-      font-family: var(--mono);
-      font-size: 10px;
-      color: var(--text3);
-    }
-
-    .ovname {
-      font-size: 20px;
-      font-weight: 500;
-      margin: 3px 0 16px;
-    }
-
-    .ovfield {
-      margin-bottom: 14px;
-    }
-
-    .ovfield h4 {
-      font-family: var(--mono);
-      font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-      color: var(--text3);
-      margin-bottom: 5px;
-    }
-
-    .ovfield p {
-      font-size: 14px;
-      color: var(--text);
-      line-height: 1.6;
-    }
-
-    .ovscores {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 16px;
-    }
-
-    .ovscore {
-      background: var(--surface2);
-      border-radius: 3px;
-      padding: 10px;
-      text-align: center;
-    }
-
-    .ovscoren {
-      font-family: var(--mono);
-      font-size: 20px;
-      font-weight: 600;
-    }
-
-    .ovscorel {
-      font-size: 10px;
-      color: var(--text3);
-      font-family: var(--mono);
-      margin-top: 2px;
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 70px;
-      left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: var(--text);
-      color: var(--bg);
-      padding: 10px 20px;
-      border-radius: 3px;
-      font-family: var(--mono);
-      font-size: 12px;
-      font-weight: 500;
-      opacity: 0;
-      transition: all 0.25s;
-      z-index: 200;
-      white-space: nowrap;
-      pointer-events: none;
-    }
-
-    .toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
-
-    .toast.warn {
-      background: var(--accent);
-    }
-
-    .loadscreen {
-      position: fixed;
-      inset: 0;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      gap: 14px;
-    }
-
-    .loadscreen.hide {
-      display: none;
-    }
-
-    .spinner {
-      width: 28px;
-      height: 28px;
-      border: 2px solid var(--border);
-      border-top-color: var(--text);
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .loadlbl {
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--text2);
-    }
-
-    .xrow {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .dbanner {
-      background: var(--amber-bg);
-      border: 1px solid #d97706;
-      border-radius: 4px;
-      padding: 14px 16px;
-      margin-bottom: 12px;
-    }
-
-    .dbanner p {
-      font-size: 13px;
-      color: var(--amber);
-      line-height: 1.5;
-      margin-bottom: 10px;
-      font-family: var(--mono);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>3501 Impact Scout - FRC Worlds 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, doc, addDoc, deleteDoc, onSnapshot, query, serverTimestamp, writeBatch, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  window.__fbReady = { initializeApp, getFirestore, collection, doc, addDoc, deleteDoc, onSnapshot, query, serverTimestamp, writeBatch, getDocs, updateDoc };
+  window.dispatchEvent(new Event('fbready'));
+</script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #f5f2ed;
+  --surface: #ffffff;
+  --surface2: #f0ece5;
+  --border: #ddd8d0;
+  --border-dark: #b8b0a4;
+  --text: #1a1714;
+  --text2: #6b6560;
+  --text3: #9e9890;
+  --accent: #c84b2f;
+  --accent-bg: #fdf1ee;
+  --blue: #2563a8;
+  --blue-bg: #eef3fb;
+  --green: #1a6b3c;
+  --green-bg: #eaf4ef;
+  --amber: #8c5a00;
+  --amber-bg: #fef7ea;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+}
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app { max-width: 480px; margin: 0 auto; padding: 16px 14px 80px; }
+
+/* Header */
+.hdr {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 20px; padding-bottom: 16px;
+  border-bottom: 1.5px solid var(--text);
+}
+.hdr-title { font-family: var(--mono); font-size: 18px; font-weight: 600; letter-spacing: -0.5px; }
+.hdr-sub { font-size: 11px; color: var(--text2); margin-top: 3px; font-family: var(--mono); }
+.hdr-count {
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
+  background: var(--text); color: var(--bg);
+  padding: 4px 10px; border-radius: 2px; margin-top: 2px;
+}
+
+/* Nav */
+.nav {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface); border-top: 1.5px solid var(--text);
+  display: flex; z-index: 90; max-width: 480px; margin: 0 auto;
+  left: 50%; transform: translateX(-50%);
+}
+.nav-btn {
+  flex: 1; padding: 12px 8px 14px; border: none; background: none;
+  font-family: var(--mono); font-size: 10px; font-weight: 500;
+  color: var(--text3); cursor: pointer; letter-spacing: 0.5px;
+  text-transform: uppercase; transition: color 0.15s;
+  border-right: 0.5px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.nav-btn:last-child { border-right: none; }
+.nav-btn.on { color: var(--text); }
+.nav-btn.on .nav-dot { background: var(--accent); }
+.nav-dot { width: 5px; height: 5px; border-radius: 50%; background: transparent; transition: background 0.15s; }
+
+/* Panels */
+.panel { display: none; }
+.panel.on { display: block; animation: up 0.2s ease; }
+@keyframes up { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+
+/* Cards */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 18px; margin-bottom: 12px;
+}
+.card-title {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 1.2px; text-transform: uppercase; color: var(--text2);
+  margin-bottom: 14px; padding-bottom: 10px; border-bottom: 0.5px solid var(--border);
+}
+
+/* Fields */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+.field > label {
+  display: block; font-size: 11px; font-weight: 500; color: var(--text2);
+  margin-bottom: 5px; font-family: var(--mono); letter-spacing: 0.3px;
+}
+.field input, .field textarea, .field select {
+  width: 100%; padding: 10px 12px;
+  border: 1px solid var(--border); border-radius: 3px;
+  background: var(--surface2); color: var(--text);
+  font-family: var(--sans); font-size: 15px; outline: none;
+  transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+.field input:focus, .field textarea:focus, .field select:focus {
+  border-color: var(--text); background: var(--surface);
+}
+.field textarea { min-height: 100px; resize: vertical; line-height: 1.55; }
+.field-hint { font-size: 11px; color: var(--text3); margin-top: 5px; line-height: 1.45; font-family: var(--mono); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* Score pills */
+.score-group { margin-bottom: 14px; }
+.score-group:last-child { margin-bottom: 0; }
+.score-lbl { font-size: 11px; font-weight: 500; color: var(--text2); font-family: var(--mono); margin-bottom: 6px; }
+.pills { display: flex; gap: 6px; }
+.pill {
+  flex: 1; padding: 9px 4px; text-align: center;
+  border: 1px solid var(--border); border-radius: 3px;
+  background: var(--surface2); color: var(--text2);
+  font-family: var(--mono); font-size: 14px; font-weight: 500;
+  cursor: pointer; transition: all 0.12s;
+}
+.pill:active { transform: scale(0.96); }
+.pill.s1.on { background:#fdf1ee; border-color:#c84b2f; color:#c84b2f; }
+.pill.s2.on { background:#fef7ea; border-color:#d97706; color:#8c5a00; }
+.pill.s3.on { background:#f0ece5; border-color:#6b6560; color:#1a1714; }
+.pill.s4.on { background:#eaf4ef; border-color:#1a6b3c; color:#1a6b3c; }
+.pill.s5.on { background:#eef3fb; border-color:#2563a8; color:#2563a8; }
+
+/* Buttons */
+.btn {
+  padding: 12px 20px; border-radius: 3px; font-family: var(--mono);
+  font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
+  cursor: pointer; border: 1.5px solid var(--text); background: var(--surface);
+  color: var(--text); transition: all 0.15s; text-transform: uppercase;
+}
+.btn:active { transform: scale(0.98); }
+.btn.primary { background: var(--text); color: var(--bg); }
+.btn.primary:active { opacity: 0.85; }
+.btn.danger { border-color: var(--accent); color: var(--accent); }
+.btn-row { display: flex; gap: 8px; }
+.btn-row .btn { flex: 1; }
+
+/* Stats */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
+.stat { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 14px; }
+.stat-n { font-family: var(--mono); font-size: 26px; font-weight: 600; color: var(--text); }
+.stat-l { font-size: 10px; color: var(--text3); margin-top: 3px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Search */
+.search-wrap { position: relative; margin-bottom: 10px; }
+.search {
+  width: 100%; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: 3px; background: var(--surface); color: var(--text);
+  font-family: var(--mono); font-size: 13px; outline: none;
+}
+.search:focus { border-color: var(--text); }
+
+/* Team rows */
+.team-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 14px; margin-bottom: 8px;
+  cursor: pointer; transition: border-color 0.15s;
+}
+.team-item:active { border-color: var(--text); }
+.ti-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.ti-num { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.ti-name { font-size: 15px; font-weight: 500; color: var(--text); margin-top: 1px; }
+.ti-region { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 3px; }
+.ti-what { font-size: 12px; color: var(--text2); margin-top: 8px; line-height: 1.45;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.ti-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.tag { font-family: var(--mono); font-size: 10px; padding: 2px 7px; border-radius: 2px; }
+.tag-b { background: var(--blue-bg); color: var(--blue); }
+.tag-g { background: var(--green-bg); color: var(--green); }
+.tag-a { background: var(--amber-bg); color: var(--amber); }
+.tag-r { background: var(--accent-bg); color: var(--accent); }
+
+/* Score badges */
+.score-badge {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  padding: 3px 8px; border-radius: 2px; white-space: nowrap;
+}
+.sb-hi { background: var(--green-bg); color: var(--green); }
+.sb-mid { background: var(--amber-bg); color: var(--amber); }
+.sb-lo { background: var(--accent-bg); color: var(--accent); }
+.sb-none { background: var(--surface2); color: var(--text3); }
+
+/* Empty */
+.empty { text-align: center; padding: 48px 20px; color: var(--text3); font-family: var(--mono); font-size: 12px; line-height: 1.7; }
+
+/* Analysis */
+.an-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 12px; overflow: hidden; }
+.an-hdr { padding: 12px 16px; border-bottom: 0.5px solid var(--border); background: var(--surface2); }
+.an-hdr-title { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--text2); }
+.an-body { padding: 14px 16px; }
+
+.top-row { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+.top-row:last-child { border-bottom: none; padding-bottom: 0; }
+.top-rank { font-family: var(--mono); font-size: 20px; font-weight: 600; color: var(--text3); min-width: 30px; padding-top: 1px; }
+.top-info { flex: 1; }
+.top-name { font-size: 14px; font-weight: 500; }
+.top-detail { font-size: 11px; color: var(--text2); margin-top: 3px; line-height: 1.45; font-family: var(--mono); }
+.top-quote { font-size: 12px; color: var(--text2); margin-top: 5px; font-style: italic; line-height: 1.45;
+  padding-left: 8px; border-left: 2px solid var(--border-dark); }
+
+.bucket-row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 0.5px solid var(--border); }
+.bucket-row:last-child { border-bottom: none; }
+.bucket-name { font-size: 12px; color: var(--text); flex: none; width: 160px; line-height: 1.3; }
+.bucket-bar-bg { flex: 1; height: 5px; background: var(--border); border-radius: 1px; overflow: hidden; }
+.bucket-bar { height: 100%; background: var(--text); border-radius: 1px; transition: width 0.5s; }
+.bucket-ct { font-family: var(--mono); font-size: 12px; font-weight: 500; color: var(--text2); min-width: 16px; text-align: right; }
+
+.theme-chip { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 4px 9px; border-radius: 2px; margin: 3px 3px 0 0; background: var(--surface2); color: var(--text2); border: 0.5px solid var(--border); }
+
+.insight-row { display: flex; gap: 10px; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+.insight-row:last-child { border-bottom: none; padding-bottom: 0; }
+.insight-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 5px; }
+.insight-text { font-size: 13px; color: var(--text); line-height: 1.55; }
+
+/* Overlay */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(26,23,20,0.6); z-index: 80; overflow-y: auto; padding: 20px 14px; }
+.overlay.on { display: block; }
+.overlay-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 20px; max-width: 480px; margin: 0 auto;
+}
+.ov-close { float: right; background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text2); padding: 2px 4px; }
+.ov-num { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.ov-name { font-size: 20px; font-weight: 500; margin: 3px 0 16px; }
+.ov-field { margin-bottom: 14px; }
+.ov-field h4 { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); margin-bottom: 5px; }
+.ov-field p { font-size: 14px; color: var(--text); line-height: 1.6; }
+.ov-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; }
+.ov-score { background: var(--surface2); border-radius: 3px; padding: 10px; text-align: center; }
+.ov-score-n { font-family: var(--mono); font-size: 20px; font-weight: 600; }
+.ov-score-l { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+
+/* Edit mode */
+.ov-edit-toggle { float: right; background: none; border: none; cursor: pointer; color: var(--text2); font-family: var(--mono); font-size: 11px; padding: 3px 0; text-decoration: underline; transition: color 0.15s; }
+.ov-edit-toggle:active { color: var(--text); }
+.ov-edit-mode .ov-field p, .ov-edit-mode .ov-field > div { display: none; }
+.ov-edit-mode .ov-field-edit { display: block; }
+.ov-field-edit { display: none; margin-bottom: 14px; }
+.ov-field-edit input, .ov-field-edit textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 3px; background: var(--surface2); color: var(--text); font-family: var(--sans); font-size: 14px; outline: none; transition: border-color 0.15s; }
+.ov-field-edit input:focus, .ov-field-edit textarea:focus { border-color: var(--text); background: var(--surface); }
+.ov-field-edit textarea { min-height: 80px; resize: vertical; line-height: 1.55; }
+.ov-field-edit-label { font-family: var(--mono); font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); margin-bottom: 5px; display: block; }
+.ov-edit-buttons { display: flex; gap: 8px; margin-top: 14px; }
+.ov-edit-buttons button { flex: 1; padding: 10px 14px; font-size: 11px; }
+.ov-edit-scores { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 6px; }
+.ov-edit-pill { padding: 8px 4px; text-align: center; border: 1px solid var(--border); border-radius: 3px; background: var(--surface2); color: var(--text2); font-family: var(--mono); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.12s; }
+.ov-edit-pill.on { background: var(--text); color: var(--bg); }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%) translateY(20px);
+  background: var(--text); color: var(--bg); padding: 10px 20px; border-radius: 3px;
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  opacity: 0; transition: all 0.25s; z-index: 200; white-space: nowrap;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.warn { background: var(--accent); }
+
+/* Demo banner */
+.demo-banner {
+  background: var(--amber-bg); border: 1px solid #d97706;
+  border-radius: 4px; padding: 14px 16px; margin-bottom: 12px;
+}
+.demo-banner p { font-size: 13px; color: var(--amber); line-height: 1.5; margin-bottom: 10px; font-family: var(--mono); }
+
+.export-row { display: flex; gap: 8px; margin-bottom: 10px; }
+
+/* ── Firebase / Room UI ── */
+.room-modal-bg {
+  position: fixed; inset: 0; background: rgba(26,23,20,0.85);
+  z-index: 300; display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.room-modal {
+  background: var(--surface); border: 1.5px solid var(--text);
+  border-radius: 4px; padding: 28px 24px; max-width: 380px; width: 100%;
+}
+.room-modal-title { font-family: var(--mono); font-size: 14px; font-weight: 600; letter-spacing: -0.3px; margin-bottom: 6px; }
+.room-modal-sub { font-size: 12px; color: var(--text2); font-family: var(--mono); margin-bottom: 22px; line-height: 1.5; }
+.room-input {
+  width: 100%; padding: 11px 13px; border: 1px solid var(--border);
+  border-radius: 3px; font-family: var(--mono); font-size: 16px;
+  text-transform: uppercase; letter-spacing: 2px;
+  background: var(--surface2); color: var(--text); outline: none; margin-bottom: 10px;
+}
+.room-input:focus { border-color: var(--text); background: var(--surface); }
+.room-divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
+.room-divider::before, .room-divider::after { content:''; flex:1; height:0.5px; background:var(--border); }
+.room-divider span { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+.sync-bar {
+  background: var(--surface2); border-bottom: 0.5px solid var(--border);
+  padding: 7px 14px; display: flex; align-items: center; gap: 8px;
+  font-family: var(--mono); font-size: 10px; color: var(--text2);
+  position: sticky; top: 0; z-index: 50;
+}
+.sync-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border); flex-shrink: 0; transition: background 0.3s; }
+.sync-dot.live { background: #1a6b3c; }
+.sync-dot.err  { background: var(--accent); }
+.sync-room { font-weight: 600; color: var(--text); margin-left: 4px; }
+.sync-right { margin-left: auto; cursor: pointer; color: var(--text3); text-decoration: underline; }
+</style>
 </head>
-
 <body>
+<!-- Room join modal -->
+<div class="room-modal-bg" id="roomModal">
+  <div class="room-modal">
+    <div class="room-modal-title">IMPACT SCOUT — FRC Worlds 2026</div>
+    <div class="room-modal-sub">Create or join a shared scouting room. Everyone in the same room sees data in real-time.</div>
 
-  <div class="loadscreen" id="ls">
-    <div class="spinner"></div>
-    <div class="loadlbl" id="ll">Connecting...</div>
+    <label style="font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text2);display:block;margin-bottom:5px;">Your name</label>
+    <input class="room-input" id="ri-name" placeholder="SCOUT NAME" style="letter-spacing:0.5px;text-transform:none;margin-bottom:16px" maxlength="24">
+
+    <label style="font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text2);display:block;margin-bottom:5px;">Create a new room</label>
+    <button class="btn primary" onclick="createRoom()" style="width:100%;font-size:11px">Create room →</button>
+
+    <div class="room-divider"><span>OR</span></div>
+
+    <label style="font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text2);display:block;margin-bottom:5px;">Join existing room</label>
+    <input class="room-input" id="ri-code" placeholder="ROOM CODE" maxlength="6">
+    <button class="btn" onclick="joinRoom()" style="width:100%;font-size:11px;margin-top:6px">Join room →</button>
+
+    <div id="roomErr" style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-top:10px;display:none"></div>
+  </div>
+</div>
+
+<!-- Sync status bar -->
+<div class="sync-bar" id="syncBar" style="display:none">
+  <div class="sync-dot" id="syncDot"></div>
+  <span>Room <span class="sync-room" id="syncRoomLbl">—</span></span>
+  <span id="syncStatus">connecting…</span>
+  <span class="sync-right" onclick="changeRoom()">change room</span>
+</div>
+
+<div class="app">
+
+  <div class="hdr">
+    <div>
+      <div class="hdr-title">IMPACT SCOUT</div>
+      <div class="hdr-sub">FRC Worlds 2026 · Culture Award</div>
+    </div>
+    <div class="hdr-count" id="hdrCount">0 teams</div>
   </div>
 
-  <div class="app">
-    <div style="display:flex;gap:8px;margin-bottom:16px">
-      <button class="btn" onclick="login()">Login</button>
-      <button class="btn" onclick="logout()">Logout</button>
+  <!-- ── SCOUT PANEL ── -->
+  <div class="panel on" id="panel-scout">
+
+    <div class="demo-banner">
+      <p>New? Load demo teams to test the app before your first real scout.</p>
+      <button class="btn" onclick="loadDemo()" style="width:100%;font-size:11px">Load 6 demo teams →</button>
     </div>
 
-    <div class="hdr">
-      <div>
-        <div class="hdr-title">IMPACT SCOUT</div>
-        <div class="hdr-sub">FRC Worlds 2026 · Culture Award</div>
+    <div class="card">
+      <div class="card-title">Team info</div>
+      <div class="row2">
+        <div class="field"><label>Team number</label><input id="f-num" inputmode="numeric" placeholder="e.g. 254"></div>
+        <div class="field"><label>Team name</label><input id="f-name" placeholder="e.g. Cheesy Poofs"></div>
       </div>
-      <div class="hdr-right">
-        <div class="hdr-count" id="hdrCount">0 teams</div>
-        <div class="sync-badge s-offline" id="syncBadge">● offline</div>
+      <div class="row2">
+        <div class="field"><label>Your name</label><input id="f-scout" placeholder="Scout name"></div>
+        <div class="field"><label>Region</label><input id="f-region" placeholder="e.g. CA, USA"></div>
+      </div>
+      <div class="field"><label>Geographic reach</label>
+        <select id="f-reach">
+          <option value="">Select...</option>
+          <option>Local</option><option>Regional</option>
+          <option>National</option><option>International</option>
+        </select>
       </div>
     </div>
 
-    <!-- SCOUT -->
-    <div class="panel on" id="panel-scout">
-      <div class="dbanner">
-        <p>New? Load 6 demo teams to test all features before scouting real teams.</p>
-        <button class="btn" onclick="loadDemo()" style="width:100%;font-size:11px">Load demo teams →</button>
+    <div class="card">
+      <div class="card-title">What do they do?</div>
+      <div class="field">
+        <label>Programs, outreach, activities</label>
+        <textarea id="f-what" placeholder="Just write what you hear. Camps, mentoring FLL teams, STEM nights, open source tools — list everything. Multiple programs is fine."></textarea>
+        <div class="field-hint">Don't pre-categorize. Write like you're telling someone what they said.</div>
       </div>
-      <div class="card">
-        <div class="card-title">Team info</div>
-        <div class="row2">
-          <div class="field"><label>Team number</label><input id="f-num" inputmode="numeric" placeholder="e.g. 254">
-          </div>
-          <div class="field"><label>Team name</label><input id="f-name" placeholder="e.g. Cheesy Poofs"></div>
-        </div>
-        <div class="row2">
-          <div class="field"><label>Your name</label><input id="f-scout" placeholder="Scout name"></div>
-          <div class="field"><label>Region</label><input id="f-region" placeholder="e.g. CA, USA"></div>
-        </div>
-        <div class="field"><label>Geographic reach</label>
-          <select id="f-reach">
-            <option value="">Select...</option>
-            <option>Local</option>
-            <option>Regional</option>
-            <option>National</option>
-            <option>International</option>
-          </select>
-        </div>
+      <div class="row2">
+        <div class="field"><label>Who they serve</label><input id="f-audience" placeholder="e.g. K-8 girls, rural schools"></div>
+        <div class="field"><label>Scale</label><input id="f-scale" placeholder="e.g. 500 students/yr"></div>
       </div>
-      <div class="card">
-        <div class="card-title">What do they do?</div>
-        <div class="field">
-          <label>Programs, outreach, activities</label>
-          <textarea id="f-what"
-            placeholder="Just write what you hear — camps, FLL mentorship, STEM nights, open source tools. List everything, multiple programs is fine."></textarea>
-          <div class="field-hint">Don't pre-categorize. Write like you're telling someone what they said.</div>
-        </div>
-        <div class="row2">
-          <div class="field"><label>Who they serve</label><input id="f-audience"
-              placeholder="e.g. K-8 girls, rural schools"></div>
-          <div class="field"><label>Scale</label><input id="f-scale" placeholder="e.g. 500 students/yr"></div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Why do they do it?</div>
-        <div class="field">
-          <label>Problem identified + mission</label>
-          <textarea id="f-why"
-            placeholder="What gap or problem drove this? A specific moment, person, or statistic they noticed is often the most compelling."></textarea>
-          <div class="field-hint">Strong WHYs are specific, not generic.</div>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">How + impact data</div>
-        <div class="field">
-          <label>Approach, partnerships, sustainability</label>
-          <textarea id="f-how"
-            placeholder="How do their programs actually run? Who do they partner with? How do they keep it going year to year?"></textarea>
-        </div>
-        <div class="field">
-          <label>Real numbers + outcomes</label>
-          <textarea id="f-data" placeholder="Students reached, teams started, years running, survey results..."
-            style="min-height:72px"></textarea>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Scout ratings · 1 = weak · 5 = outstanding</div>
-        <div class="sg">
-          <div class="slbl">Impact depth</div>
-          <div class="pills" id="pills-depth"></div>
-        </div>
-        <div class="sg">
-          <div class="slbl">Sustainability</div>
-          <div class="pills" id="pills-sustain"></div>
-        </div>
-        <div class="sg">
-          <div class="slbl">Clarity of WHY</div>
-          <div class="pills" id="pills-why"></div>
-        </div>
-        <div class="sg">
-          <div class="slbl">Data quality</div>
-          <div class="pills" id="pills-data"></div>
-        </div>
-        <div class="sg" style="margin-bottom:14px">
-          <div class="slbl">Overall impression</div>
-          <div class="pills" id="pills-overall"></div>
-        </div>
-        <div class="field">
-          <label>Standout quote / notes</label>
-          <textarea id="f-notes" placeholder="A memorable quote or anything that doesn't fit above..."
-            style="min-height:68px"></textarea>
-        </div>
-      </div>
-      <div class="btn-row">
-        <button class="btn danger" onclick="clearForm()">Clear</button>
-        <button class="btn primary" onclick="saveEntry()">Save team →</button>
-      </div>
-      <div style="height:12px"></div>
     </div>
 
-    <!-- DATA -->
-    <div class="panel" id="panel-data">
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-n" id="st-total">0</div>
-          <div class="stat-l">Teams scouted</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n" id="st-avg">—</div>
-          <div class="stat-l">Avg score</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n" id="st-top">—</div>
-          <div class="stat-l">Top scorer</div>
-        </div>
-        <div class="stat">
-          <div class="stat-n" id="st-hi">0</div>
-          <div class="stat-l">Strong (20+)</div>
-        </div>
+    <div class="card">
+      <div class="card-title">Why do they do it?</div>
+      <div class="field">
+        <label>Problem identified + mission</label>
+        <textarea id="f-why" placeholder="What gap or problem drove this? What's their mission? A specific moment, person, or statistic they noticed is often the most compelling."></textarea>
+        <div class="field-hint">Strong WHYs are specific, not generic.</div>
       </div>
-      <input class="search" id="searchBox" placeholder="Search by number or name..." oninput="renderData()">
-      <div class="xrow">
-        <button class="btn" onclick="exportCSV()" style="flex:1;font-size:11px">Export CSV</button>
-        <button class="btn danger" onclick="clearAll()" style="flex:1;font-size:11px">Clear all</button>
-      </div>
-      <div id="teamList"></div>
     </div>
 
-    <!-- ANALYSIS -->
-    <div class="panel" id="panel-analysis">
-      <div id="analysisContent"></div>
+    <div class="card">
+      <div class="card-title">How + impact data</div>
+      <div class="field">
+        <label>Approach, partnerships, sustainability</label>
+        <textarea id="f-how" placeholder="How do their programs actually run? Who do they partner with? How do they keep it going year to year — funding, alumni, documentation?"></textarea>
+      </div>
+      <div class="field">
+        <label>Real numbers + outcomes</label>
+        <textarea id="f-data" placeholder="Any hard data — students reached, teams started, graduation rates, years running, survey results..." style="min-height:72px"></textarea>
+      </div>
     </div>
+
+    <div class="card">
+      <div class="card-title">Scout ratings · 1 = weak · 5 = outstanding</div>
+      <div class="score-group"><div class="score-lbl">Impact depth</div><div class="pills" id="pills-depth"></div></div>
+      <div class="score-group"><div class="score-lbl">Sustainability</div><div class="pills" id="pills-sustain"></div></div>
+      <div class="score-group"><div class="score-lbl">Clarity of WHY</div><div class="pills" id="pills-why"></div></div>
+      <div class="score-group"><div class="score-lbl">Data quality</div><div class="pills" id="pills-data"></div></div>
+      <div class="score-group" style="margin-bottom:14px"><div class="score-lbl">Overall impression</div><div class="pills" id="pills-overall"></div></div>
+      <div class="field">
+        <label>Standout quote / extra notes</label>
+        <textarea id="f-notes" placeholder="A memorable quote, or anything that doesn't fit above..." style="min-height:68px"></textarea>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn danger" onclick="clearForm()">Clear</button>
+      <button class="btn primary" onclick="saveEntry()">Save team →</button>
+    </div>
+    <div style="height:12px"></div>
   </div>
 
-  <div class="nav">
-    <button class="nav-btn on" onclick="switchTab('scout')" id="nav-scout">
-      <div class="ndot"></div>Scout
-    </button>
-    <button class="nav-btn" onclick="switchTab('data')" id="nav-data">
-      <div class="ndot"></div>Data
-    </button>
-    <button class="nav-btn" onclick="switchTab('analysis')" id="nav-analysis">
-      <div class="ndot"></div>Analysis
-    </button>
+  <!-- ── DATA PANEL ── -->
+  <div class="panel" id="panel-data">
+    <div class="stats">
+      <div class="stat"><div class="stat-n" id="st-total">0</div><div class="stat-l">Teams scouted</div></div>
+      <div class="stat"><div class="stat-n" id="st-avg">—</div><div class="stat-l">Avg score</div></div>
+      <div class="stat"><div class="stat-n" id="st-top">—</div><div class="stat-l">Top scorer</div></div>
+      <div class="stat"><div class="stat-n" id="st-hi">0</div><div class="stat-l">Strong (20+)</div></div>
+    </div>
+    <input class="search" id="searchBox" placeholder="Search by number or name..." oninput="renderData()">
+    <div class="export-row">
+      <button class="btn" onclick="exportCSV()" style="flex:1;font-size:11px">Export CSV</button>
+      <button class="btn danger" onclick="clearAll()" style="flex:1;font-size:11px">Clear all</button>
+    </div>
+    <div id="teamList"></div>
   </div>
 
-  <div class="overlay" id="overlay">
-    <div class="ovcard" id="ovcard"></div>
+  <!-- ── ANALYSIS PANEL ── -->
+  <div class="panel" id="panel-analysis">
+    <div id="analysisContent"></div>
   </div>
 
-  <div class="toast" id="toast"></div>
+</div>
 
-  <script type="module">
-    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-    import {
-      getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc,
-      enableIndexedDbPersistence, query, orderBy, serverTimestamp
-    }
-      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
-    import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut }
-from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+<!-- Bottom nav -->
+<div class="nav">
+  <button class="nav-btn on" onclick="switchTab('scout')" id="nav-scout">
+    <div class="nav-dot"></div>Scout
+  </button>
+  <button class="nav-btn" onclick="switchTab('data')" id="nav-data">
+    <div class="nav-dot"></div>Data
+  </button>
+  <button class="nav-btn" onclick="switchTab('analysis')" id="nav-analysis">
+    <div class="nav-dot"></div>Analysis
+  </button>
+</div>
 
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
+<!-- Detail overlay -->
+<div class="overlay" id="overlay">
+  <div class="overlay-card" id="overlayCard"></div>
+</div>
 
-    window.login = async () => {
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Firebase config — replace with YOUR project's config from console.firebase.google.com
+// ─────────────────────────────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyBDHT9nQTrbcMUHhVyWi5V0_ahlI6OyTbY",
+  authDomain: "impact-scouting-app.firebaseapp.com",
+  projectId: "impact-scouting-app",
+  storageBucket: "impact-scouting-app.firebasestorage.app",
+  messagingSenderId: "567897349703",
+  appId: "1:567897349703:web:01f522feff334d7bca1b62",
+  measurementId: "G-DW4X2QBDBN"
+};
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ── State ────────────────────────────────────────────────────────────────────
+let entries = [];
+let db = null, unsubscribe = null;
+let currentRoom = null, currentScout = null;
+const scores = { depth:0, sustain:0, why:0, data:0, overall:0 };
+const skeys = ['depth','sustain','why','data','overall'];
+
+// Firebase refs (populated after login)
+let { initializeApp, getFirestore, collection, doc, addDoc, deleteDoc,
+      onSnapshot, query, serverTimestamp, writeBatch, getDocs, updateDoc } = {};
+
+// ── Firebase init (waits for ES module export) ────────────────────────────────
+window.addEventListener('fbready', () => {
+  ({ initializeApp, getFirestore, collection, doc, addDoc, deleteDoc,
+     onSnapshot, query, serverTimestamp, writeBatch, getDocs, updateDoc } = window.__fbReady);
+  const app = initializeApp(FIREBASE_CONFIG);
+  console.log("PROJECT:", app.options.projectId);
+  db = getFirestore(app);
+
+  // Restore session from localStorage
+  const saved = localStorage.getItem('is2_session');
+  if (saved) {
     try {
-      await signInWithPopup(auth, provider);
-    } catch (e) {
-      console.error(e);
-      alert("Login failed");
+      const s = JSON.parse(saved);
+      currentRoom = s.room; currentScout = s.scout;
+      enterRoom();
+    } catch(e) { showRoomModal(); }
+  } else { showRoomModal(); }
+});
+
+// ── Room UI ───────────────────────────────────────────────────────────────────
+function showRoomModal() {
+  g('roomModal').style.display = 'flex';
+  g('syncBar').style.display = 'none';
+}
+
+function roomError(msg) {
+  const el = g('roomErr');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function generateCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+function createRoom() {
+  const scout = g('ri-name').value.trim();
+  if (!scout) { roomError('Please enter your name first.'); return; }
+  currentRoom = generateCode();
+  currentScout = scout;
+  saveSession();
+  enterRoom();
+}
+
+function joinRoom() {
+  const scout = g('ri-name').value.trim();
+  const code = g('ri-code').value.trim().toUpperCase();
+  if (!scout) { roomError('Please enter your name first.'); return; }
+  if (code.length < 4) { roomError('Enter a valid room code.'); return; }
+  currentRoom = code;
+  currentScout = scout;
+  saveSession();
+  enterRoom();
+}
+
+function changeRoom() {
+  if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+  entries = [];
+  currentRoom = null; currentScout = null;
+  localStorage.removeItem('is2_session');
+  g('ri-code').value = '';
+  g('ri-name').value = '';
+  g('roomErr').style.display = 'none';
+  showRoomModal();
+}
+
+function saveSession() {
+  localStorage.setItem('is2_session', JSON.stringify({ room: currentRoom, scout: currentScout }));
+}
+
+function enterRoom() {
+  g('roomModal').style.display = 'none';
+  g('syncBar').style.display = 'flex';
+  g('syncRoomLbl').textContent = currentRoom;
+  g('syncStatus').textContent = 'connecting…';
+  setSyncDot('');
+
+  // Pre-fill scout name in form
+  const scoutFld = g('f-scout');
+  if (scoutFld && !scoutFld.value) scoutFld.value = currentScout;
+
+  subscribeToRoom();
+}
+
+// ── Firestore real-time listener ──────────────────────────────────────────────
+function subscribeToRoom() {
+  if (unsubscribe) unsubscribe();
+  const col = collection(db, 'rooms', currentRoom, 'entries');
+  unsubscribe = onSnapshot(col,
+    (snap) => {
+      entries = snap.docs.map(d => ({ ...d.data(), _docId: d.id }));
+      // Sort by createdAt so order is stable
+      entries.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+      g('syncStatus').textContent = `${entries.length} team${entries.length !== 1 ? 's' : ''} · live`;
+      setSyncDot('live');
+      updateCount();
+      // Re-render visible panel
+      const active = ['scout','data','analysis'].find(n => g('panel-'+n).classList.contains('on'));
+      if (active === 'data') { renderData(); updateStats(); }
+      if (active === 'analysis') renderAnalysis();
+    },
+    (err) => {
+      console.error(err);
+      g('syncStatus').textContent = 'connection error';
+      setSyncDot('err');
     }
-  };
+  );
+}
 
-  window.logout = async () => {
-    await signOut(auth);
-  };
+function setSyncDot(cls) {
+  const d = g('syncDot');
+  d.className = 'sync-dot' + (cls ? ' ' + cls : '');
+}
 
-  onAuthStateChanged(auth, user => {
-  if (user) {
-    console.log("Logged in as:", user.email);
-    document.body.style.display = "block";
-  } else {
-    document.body.innerHTML = `
-      <div style="padding:40px;text-align:center;font-family:sans-serif">
-        <h2>Please log in to use Impact Scout</h2>
-        <button onclick="login()">Login with Google</button>
-      </div>
-    `;
+// ── Build pills ────────────────────────────────────────
+skeys.forEach(k => {
+  const c = document.getElementById('pills-' + k);
+  for (let i = 1; i <= 5; i++) {
+    const b = document.createElement('button');
+    b.className = 'pill s' + i;
+    b.textContent = i;
+    b.id = 'pill-' + k + '-' + i;
+    b.onclick = () => setPill(k, i);
+    c.appendChild(b);
   }
 });
 
-    const cfg = {
-      authDomain: "impact-scouting-app.firebaseapp.com",
-      projectId: "impact-scouting-app",
-      storageBucket: "impact-scouting-app.firebasestorage.app",
-      messagingSenderId: "567897349703",
-      appId: "1:567897349703:web:01f522feff334d7bca1b62"
-    };
+function setPill(k, v) {
+  scores[k] = v;
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('pill-' + k + '-' + i).className = 'pill s' + i + (i === v ? ' on' : '');
+  }
+}
 
-    const app = initializeApp(cfg);
-    const db = getFirestore(app);
+// ── Tabs ───────────────────────────────────────────────
+function switchTab(name) {
+  ['scout','data','analysis'].forEach(n => {
+    document.getElementById('panel-' + n).classList.toggle('on', n === name);
+    document.getElementById('nav-' + n).classList.toggle('on', n === name);
+  });
+  if (name === 'data') { renderData(); updateStats(); }
+  if (name === 'analysis') renderAnalysis();
+}
 
-    enableIndexedDbPersistence(db).catch(e => console.warn('Persistence:', e.code));
+// ── Save ───────────────────────────────────────────────
+async function saveEntry() {
+  if (!db || !currentRoom) { toast('Not connected to a room yet', true); return; }
+  const num = g('f-num').value.trim();
+  const name = g('f-name').value.trim();
+  if (!num || !name) { toast('Team number and name are required', true); return; }
+  const total = skeys.reduce((s, k) => s + scores[k], 0);
+  const entry = {
+    num, name,
+    scout: g('f-scout').value.trim() || currentScout,
+    region: g('f-region').value.trim(),
+    reach: g('f-reach').value,
+    what: g('f-what').value.trim(),
+    audience: g('f-audience').value.trim(),
+    scale: g('f-scale').value.trim(),
+    why: g('f-why').value.trim(),
+    how: g('f-how').value.trim(),
+    data: g('f-data').value.trim(),
+    notes: g('f-notes').value.trim(),
+    scores: { ...scores }, total,
+    createdAt: serverTimestamp()
+  };
+  try {
+    await addDoc(collection(db, 'rooms', currentRoom, 'entries'), entry);
+    clearForm();
+    toast('Team saved & synced!');
+  } catch(e) {
+    console.error(e);
+    toast('Save failed — check connection', true);
+  }
+}
 
-    // sync status
-    function syncStatus(s) {
-      const el = G('syncBadge');
-      el.className = 'sync-badge ' + (s === 'online' ? 's-online' : s === 'offline' ? 's-offline' : 's-syncing');
-      el.textContent = s === 'online' ? '● online' : s === 'offline' ? '● offline' : '↻ syncing';
-    }
-    window.addEventListener('online', () => syncStatus('online'));
-    window.addEventListener('offline', () => syncStatus('offline'));
-    syncStatus(navigator.onLine ? 'online' : 'offline');
+function updateCount() {
+  g('hdrCount').textContent = entries.length + (entries.length === 1 ? ' team' : ' teams');
+}
 
-    // ── State ──
-    let entries = [];
-    const sc = { depth: 0, sustain: 0, why: 0, data: 0, overall: 0 };
-    const SK = ['depth', 'sustain', 'why', 'data', 'overall'];
+function clearForm() {
+  ['num','name','region','what','audience','scale','why','how','data','notes'].forEach(id => {
+    const el = g('f-' + id); if (el) el.value = '';
+  });
+  // Keep scout name pre-filled
+  if (g('f-scout') && !g('f-scout').value) g('f-scout').value = currentScout || '';
+  g('f-reach').value = '';
+  skeys.forEach(k => { scores[k] = 0; for (let i = 1; i <= 5; i++) document.getElementById('pill-' + k + '-' + i).className = 'pill s' + i; });
+}
 
-    // ── Pills ──
-    SK.forEach(k => {
-      const c = G('pills-' + k);
-      for (let i = 1; i <= 5; i++) {
-        const b = document.createElement('button');
-        b.className = 'pill s' + i; b.textContent = i; b.id = 'pill-' + k + '-' + i;
-        b.onclick = () => setPill(k, i); c.appendChild(b);
-      }
-    });
-    function setPill(k, v) {
-      sc[k] = v;
-      for (let i = 1; i <= 5; i++) G('pill-' + k + '-' + i).className = 'pill s' + i + (i === v ? ' on' : '');
-    }
+// ── Stats ──────────────────────────────────────────────
+function updateStats() {
+  g('st-total').textContent = entries.length;
+  const sc = entries.filter(e => e.total > 0);
+  if (sc.length) {
+    g('st-avg').textContent = (sc.reduce((s, e) => s + e.total, 0) / sc.length).toFixed(1);
+    const top = sc.reduce((a, b) => b.total > a.total ? b : a);
+    g('st-top').textContent = '#' + top.num;
+  } else { g('st-avg').textContent = '—'; g('st-top').textContent = '—'; }
+  g('st-hi').textContent = entries.filter(e => e.total >= 20).length;
+}
 
-    // ── Firestore listener ──
-    const ref = collection(db, 'teams');
-    const q = query(ref, orderBy('createdAt', 'desc'));
-    onSnapshot(q, snap => {
-      entries = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      updateCount(); renderData(); updateStats();
-      if (G('panel-analysis').classList.contains('on')) renderAnalysis();
-      G('ls').classList.add('hide');
-    }, err => { console.error(err); G('ls').classList.add('hide'); });
+// ── Bucketing ──────────────────────────────────────────
+const BUCKETS = [
+  { name: 'STEM Education / Camps', keys: ['camp','stem','education','workshop','class','curriculum','teach','learn','school','tutoring'] },
+  { name: 'FLL / FTC Mentorship', keys: ['fll','ftc','lego league','mentor','youth team','start a team','new team','rookie team'] },
+  { name: 'Underserved communities', keys: ['underserved','low income','equity','rural','minority','access','underprivileged','diversity','inclusion','marginalized'] },
+  { name: 'Girls / women in STEM', keys: ['girl','women','female','gender','she ','her ','women in'] },
+  { name: 'Community events / outreach', keys: ['outreach','event','fair','demo','demonstration','exhibit','festival','community'] },
+  { name: 'Open source / tools', keys: ['open source','github','tool','software','code','repository','public'] },
+  { name: 'International reach', keys: ['international','global','country','countries','abroad','worldwide','ghana','india','brazil','china','mexico'] },
+  { name: 'Alumni / long-term sustainability', keys: ['alumni','graduate','sustain','long-term','handbook','documentation','pipeline','legacy','alum'] },
+];
 
-    // ── Tabs ──
-    window.switchTab = n => {
-      ['scout', 'data', 'analysis'].forEach(x => {
-        G('panel-' + x).classList.toggle('on', x === n);
-        G('nav-' + x).classList.toggle('on', x === n);
-      });
-      if (n === 'data') { renderData(); updateStats(); }
-      if (n === 'analysis') renderAnalysis();
-    };
+const WHY_THEMES = [
+  { name: 'No STEM access in their area', keys: ['no access','no program','no club','gap','never had','didnt have','no resources','no robotics'] },
+  { name: 'Gender disparity in STEM', keys: ['girl','female','women','gender gap','boys outnumber','only girl','no women'] },
+  { name: 'Inspiring the next generation', keys: ['inspire','next generation','future','give back','pay it forward','pass on','young people'] },
+  { name: 'Personal mentor / role model', keys: ['mentor','mentored','helped me','changed my life','someone showed','someone taught','because of'] },
+  { name: 'Growing the FIRST community', keys: ['grow first','scale first','more teams','expand first','start teams','new first'] },
+  { name: 'Equity and access', keys: ['equity','equal','access','fair','underserved','low income','free','no cost'] },
+];
 
-    // ── Save ──
-    window.saveEntry = async () => {
-      const num = G('f-num').value.trim(), name = G('f-name').value.trim();
-      if (!num || !name) { toast('Team number and name required', true); return; }
-      const total = SK.reduce((s, k) => s + sc[k], 0);
-      syncStatus('syncing');
-      try {
-        await addDoc(ref, {
-          num, name,
-          scout: G('f-scout').value.trim(), region: G('f-region').value.trim(),
-          reach: G('f-reach').value, what: G('f-what').value.trim(),
-          audience: G('f-audience').value.trim(), scale: G('f-scale').value.trim(),
-          why: G('f-why').value.trim(), how: G('f-how').value.trim(),
-          data: G('f-data').value.trim(), notes: G('f-notes').value.trim(),
-          scores: { ...sc }, total, createdAt: serverTimestamp()
-        });
-        clearForm(); toast('Team saved!');
-        syncStatus(navigator.onLine ? 'online' : 'offline');
-      } catch (e) { toast('Save failed — check connection', true); console.error(e); syncStatus('offline'); }
-    };
+function bucketText(e) {
+  return ((e.what || '') + ' ' + (e.why || '') + ' ' + (e.how || '')).toLowerCase();
+}
+function getBuckets(e) {
+  const t = bucketText(e);
+  return BUCKETS.filter(b => b.keys.some(k => t.includes(k))).map(b => b.name);
+}
+function getTagClass(name) {
+  if (name.includes('FLL') || name.includes('FTC')) return 'tag-b';
+  if (name.includes('Underserved') || name.includes('Girls')) return 'tag-r';
+  if (name.includes('International') || name.includes('Alumni')) return 'tag-a';
+  return 'tag-g';
+}
 
-    // ── Delete ──
-    window.delEntry = async id => {
-      try { await deleteDoc(doc(db, 'teams', id)); G('overlay').classList.remove('on'); toast('Removed'); }
-      catch (e) { toast('Error removing', true); }
-    };
+// ── Data Sheet ─────────────────────────────────────────
+function renderData() {
+  const q = (g('searchBox').value || '').toLowerCase();
+  const filtered = entries
+    .filter(e => e.num.toLowerCase().includes(q) || e.name.toLowerCase().includes(q) || (e.region || '').toLowerCase().includes(q))
+    .sort((a, b) => b.total - a.total);
 
-    window.clearAll = async () => {
-      if (!confirm('Remove ALL teams? Cannot be undone.')) return;
-      for (const e of entries) await deleteDoc(doc(db, 'teams', e.id));
-      toast('Cleared');
-    };
-
-    // ── Clear form ──
-    window.clearForm = () => {
-      ['num', 'name', 'scout', 'region', 'what', 'audience', 'scale', 'why', 'how', 'data', 'notes'].forEach(id => {
-        const el = G('f-' + id); if (el) el.value = '';
-      });
-      G('f-reach').value = '';
-      SK.forEach(k => { sc[k] = 0; for (let i = 1; i <= 5; i++) G('pill-' + k + '-' + i).className = 'pill s' + i; });
-    };
-
-    // ── Stats ──
-    function updateStats() {
-      G('st-total').textContent = entries.length;
-      const scored = entries.filter(e => e.total > 0);
-      if (scored.length) {
-        G('st-avg').textContent = (scored.reduce((s, e) => s + e.total, 0) / scored.length).toFixed(1);
-        const top = scored.reduce((a, b) => b.total > a.total ? b : a);
-        G('st-top').textContent = '#' + top.num;
-      } else { G('st-avg').textContent = '—'; G('st-top').textContent = '—'; }
-      G('st-hi').textContent = entries.filter(e => e.total >= 20).length;
-    }
-    function updateCount() { G('hdrCount').textContent = entries.length + (entries.length === 1 ? ' team' : ' teams'); }
-
-    // ── Buckets ──
-    const BUCKETS = [
-      { n: 'STEM Education / Camps', k: ['camp', 'stem', 'education', 'workshop', 'class', 'curriculum', 'teach', 'learn', 'tutoring'] },
-      { n: 'FLL / FTC Mentorship', k: ['fll', 'ftc', 'lego league', 'mentor', 'youth team', 'start a team', 'new team', 'rookie team'] },
-      { n: 'Underserved communities', k: ['underserved', 'low income', 'equity', 'rural', 'minority', 'access', 'underprivileged', 'diversity', 'inclusion'] },
-      { n: 'Girls / women in STEM', k: ['girl', 'women', 'female', 'gender', 'women in'] },
-      { n: 'Community events', k: ['outreach', 'event', 'fair', 'demo', 'demonstration', 'exhibit', 'festival', 'community'] },
-      { n: 'Open source / tools', k: ['open source', 'github', 'tool', 'software', 'repository'] },
-      { n: 'International reach', k: ['international', 'global', 'abroad', 'worldwide', 'ghana', 'india', 'brazil', 'china'] },
-      { n: 'Alumni / sustainability', k: ['alumni', 'graduate', 'sustain', 'long-term', 'handbook', 'documentation', 'pipeline', 'legacy'] },
-    ];
-    const WHY_THEMES = [
-      { n: 'No STEM access in their area', k: ['no access', 'no program', 'no club', 'gap', 'never had', 'no resources', 'no robotics'] },
-      { n: 'Gender disparity in STEM', k: ['girl', 'female', 'women', 'gender gap', 'only girl'] },
-      { n: 'Inspiring next generation', k: ['inspire', 'next generation', 'future', 'give back', 'pay it forward', 'young people'] },
-      { n: 'Personal mentor/role model', k: ['mentored', 'helped me', 'changed my life', 'someone showed', 'because of'] },
-      { n: 'Growing FIRST community', k: ['grow first', 'scale first', 'more teams', 'expand first', 'start teams'] },
-      { n: 'Equity and access', k: ['equity', 'equal', 'access', 'fair', 'underserved', 'free', 'no cost'] },
-    ];
-
-    function getBuckets(e) {
-      const t = ((e.what || '') + ' ' + (e.why || '') + ' ' + (e.how || '')).toLowerCase();
-      return BUCKETS.filter(b => b.k.some(k => t.includes(k))).map(b => b.n);
-    }
-    function tagCls(name) {
-      if (name.includes('FLL') || name.includes('FTC')) return 'tb';
-      if (name.includes('Underserved') || name.includes('Girls')) return 'tr';
-      if (name.includes('International') || name.includes('Alumni')) return 'ta';
-      return 'tg';
-    }
-    function sbCls(s) { return s >= 20 ? 'shi' : s >= 12 ? 'smi' : s > 0 ? 'slo' : 'sno'; }
-
-    // ── Data sheet ──
-    function renderData() {
-      const q = (G('searchBox') ? G('searchBox').value : '').toLowerCase();
-      const fil = [...entries].filter(e =>
-        e.num.toLowerCase().includes(q) || e.name.toLowerCase().includes(q) || (e.region || '').toLowerCase().includes(q)
-      ).sort((a, b) => (b.total || 0) - (a.total || 0));
-      const list = G('teamList'); if (!list) return;
-      if (!fil.length) { list.innerHTML = '<div class="empty">' + (entries.length ? 'No results.' : 'No teams yet.\nFill the Scout form to start.') + '</div>'; return; }
-      list.innerHTML = fil.map(e => {
-        const s = e.total || 0, tags = getBuckets(e).slice(0, 2);
-        return `<div class="trow" onclick="showDetail('${e.id}')">
-      <div class="tr-top">
-        <div><div class="tr-num">#${X(e.num)}</div><div class="tr-name">${X(e.name)}</div>${e.region ? `<div class="tr-reg">${X(e.region)}${e.reach ? ' · ' + X(e.reach) : ''}</div>` : ''}</div>
-        <span class="sbadge ${sbCls(s)}">${s > 0 ? s + '/25' : 'unscored'}</span>
+  const list = g('teamList');
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty">' + (entries.length ? 'No results match.' : 'No teams scouted yet.\nFill out the form to start.') + '</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(e => {
+    const sc = e.total;
+    const cls = sc >= 20 ? 'sb-hi' : sc >= 12 ? 'sb-mid' : sc > 0 ? 'sb-lo' : 'sb-none';
+    const label = sc > 0 ? sc + '/25' : 'unscored';
+    const tags = getBuckets(e).slice(0, 2);
+    const scoutTag = e.scout ? `<span class="tag" style="background:var(--surface2);color:var(--text3);border:0.5px solid var(--border)">${esc(e.scout)}</span>` : '';
+    return `<div class="team-item" onclick="showDetail('${e._docId}')">
+      <div class="ti-top">
+        <div>
+          <div class="ti-num">#${esc(e.num)}</div>
+          <div class="ti-name">${esc(e.name)}</div>
+          ${e.region ? `<div class="ti-region">${esc(e.region)}${e.reach ? ' · ' + esc(e.reach) : ''}</div>` : ''}
+        </div>
+        <span class="score-badge ${cls}">${label}</span>
       </div>
-      ${e.what ? `<div class="tr-what">${X(e.what)}</div>` : ''}
-      ${tags.length ? `<div class="tr-tags">${tags.map(t => `<span class="tag ${tagCls(t)}">${t}</span>`).join('')}</div>` : ''}
+      ${e.what ? `<div class="ti-what">${esc(e.what)}</div>` : ''}
+      ${(tags.length || e.scout) ? `<div class="ti-tags">${scoutTag}${tags.map(t => `<span class="tag ${getTagClass(t)}">${t}</span>`).join('')}</div>` : ''}
     </div>`;
-      }).join('');
+  }).join('');
+}
+
+function showDetail(docId) {
+  const e = entries.find(x => x._docId === docId); if (!e) return;
+  const sc = e.total;
+  const cls = sc >= 20 ? 'sb-hi' : sc >= 12 ? 'sb-mid' : sc > 0 ? 'sb-lo' : 'sb-none';
+  const card = g('overlayCard');
+  card.innerHTML = `
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
+      <div>
+        <div class="ov-num">#${esc(e.num)}${e.region ? ' · ' + esc(e.region) : ''}${e.reach ? ' · ' + esc(e.reach) : ''}</div>
+        <div class="ov-name">${esc(e.name)}</div>
+        ${e.scout ? `<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:14px">Scouted by ${esc(e.scout)}</div>` : ''}
+      </div>
+      <button class="ov-edit-toggle" onclick="toggleEditMode('${docId}')">edit</button>
+      <button class="ov-close" onclick="g('overlay').classList.remove('on')">✕</button>
+    </div>
+
+    <div class="ov-content">
+      ${e.what ? `<div class="ov-field"><h4>What they do</h4><p>${esc(e.what)}</p><div class="ov-field-edit"><label class="ov-field-edit-label">What they do</label><textarea id="ov-edit-what">${esc(e.what)}</textarea></div></div>` : ''}
+      ${e.why ? `<div class="ov-field"><h4>Why they do it</h4><p>${esc(e.why)}</p><div class="ov-field-edit"><label class="ov-field-edit-label">Why they do it</label><textarea id="ov-edit-why">${esc(e.why)}</textarea></div></div>` : ''}
+      ${e.how ? `<div class="ov-field"><h4>How + sustainability</h4><p>${esc(e.how)}</p><div class="ov-field-edit"><label class="ov-field-edit-label">How + sustainability</label><textarea id="ov-edit-how">${esc(e.how)}</textarea></div></div>` : ''}
+      ${e.data ? `<div class="ov-field"><h4>Impact data</h4><p>${esc(e.data)}</p><div class="ov-field-edit"><label class="ov-field-edit-label">Impact data</label><textarea id="ov-edit-data">${esc(e.data)}</textarea></div></div>` : ''}
+      ${e.audience || e.scale ? `<div class="ov-field"><h4>Audience + scale</h4><div>${[e.audience,e.scale].filter(Boolean).map(esc).join(' · ')}</div><div class="ov-field-edit"><label class="ov-field-edit-label">Audience</label><input type="text" id="ov-edit-audience" value="${esc(e.audience || '')}"><label class="ov-field-edit-label" style="margin-top:10px">Scale</label><input type="text" id="ov-edit-scale" value="${esc(e.scale || '')}"></div></div>` : ''}
+      ${e.notes ? `<div class="ov-field"><h4>Scout notes</h4><p>${esc(e.notes)}</p><div class="ov-field-edit"><label class="ov-field-edit-label">Scout notes</label><textarea id="ov-edit-notes">${esc(e.notes)}</textarea></div></div>` : ''}
+    </div>
+
+    ${sc > 0 ? `<div class="ov-scores" id="ov-scores-view">
+      <div class="ov-score"><div class="ov-score-n">${e.scores.depth || '—'}</div><div class="ov-score-l">Impact depth</div></div>
+      <div class="ov-score"><div class="ov-score-n">${e.scores.sustain || '—'}</div><div class="ov-score-l">Sustainability</div></div>
+      <div class="ov-score"><div class="ov-score-n">${e.scores.why || '—'}</div><div class="ov-score-l">WHY clarity</div></div>
+      <div class="ov-score"><div class="ov-score-n">${e.scores.data || '—'}</div><div class="ov-score-l">Data quality</div></div>
+      <div class="ov-score" style="grid-column:span 2"><div class="ov-score-n"><span class="score-badge ${cls}">${sc}/25</span></div><div class="ov-score-l">Total score</div></div>
+    </div>
+    <div id="ov-scores-edit" style="display:none">
+      <div style="margin-bottom:14px"><label class="ov-field-edit-label">Impact depth</label><div class="ov-edit-scores" id="ov-edit-depth-pills"></div></div>
+      <div style="margin-bottom:14px"><label class="ov-field-edit-label">Sustainability</label><div class="ov-edit-scores" id="ov-edit-sustain-pills"></div></div>
+      <div style="margin-bottom:14px"><label class="ov-field-edit-label">WHY clarity</label><div class="ov-edit-scores" id="ov-edit-why-pills"></div></div>
+      <div style="margin-bottom:14px"><label class="ov-field-edit-label">Data quality</label><div class="ov-edit-scores" id="ov-edit-data-pills"></div></div>
+      <div><label class="ov-field-edit-label">Overall impression</label><div class="ov-edit-scores" id="ov-edit-overall-pills"></div></div>
+    </div>` : ''}
+
+    <div style="margin-top:16px;display:flex;gap:8px" id="ov-buttons">
+      <button class="btn danger" onclick="delEntry('${docId}')" style="flex:1;font-size:11px">Remove</button>
+      <button class="btn" onclick="g('overlay').classList.remove('on')" style="flex:1;font-size:11px">Close</button>
+    </div>`;
+  
+  // Initialize edit score pills if in view
+  if (sc > 0) {
+    initEditPills(e);
+  }
+  
+  g('overlay').classList.add('on');
+}
+
+function initEditPills(e) {
+  const fields = ['depth', 'sustain', 'why', 'data', 'overall'];
+  fields.forEach(f => {
+    const container = g('ov-edit-' + f + '-pills');
+    if (!container) return;
+    container.innerHTML = '';
+    for (let i = 1; i <= 5; i++) {
+      const b = document.createElement('button');
+      b.className = 'ov-edit-pill' + (e.scores[f] === i ? ' on' : '');
+      b.textContent = i;
+      b.onclick = () => {
+        container.querySelectorAll('.ov-edit-pill').forEach(x => x.classList.remove('on'));
+        b.classList.add('on');
+      };
+      container.appendChild(b);
     }
+  });
+}
 
-    window.showDetail = id => {
-      const e = entries.find(x => x.id === id); if (!e) return;
-      const s = e.total || 0;
-      G('ovcard').innerHTML = `
-    <button class="ovcls" onclick="G('overlay').classList.remove('on')">✕</button>
-    <div class="ovnum">#${X(e.num)}${e.region ? ' · ' + X(e.region) : ''}${e.reach ? ' · ' + X(e.reach) : ''}</div>
-    <div class="ovname">${X(e.name)}</div>
-    ${e.scout ? `<div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:14px">Scouted by ${X(e.scout)}</div>` : ''}
-    ${e.what ? `<div class="ovfield"><h4>What they do</h4><p>${X(e.what)}</p></div>` : ''}
-    ${e.why ? `<div class="ovfield"><h4>Why they do it</h4><p>${X(e.why)}</p></div>` : ''}
-    ${e.how ? `<div class="ovfield"><h4>How + sustainability</h4><p>${X(e.how)}</p></div>` : ''}
-    ${e.data ? `<div class="ovfield"><h4>Impact data</h4><p>${X(e.data)}</p></div>` : ''}
-    ${e.audience || e.scale ? `<div class="ovfield"><h4>Audience + scale</h4><p>${[e.audience, e.scale].filter(Boolean).map(X).join(' · ')}</p></div>` : ''}
-    ${e.notes ? `<div class="ovfield"><h4>Notes</h4><p>${X(e.notes)}</p></div>` : ''}
-    ${s > 0 ? `<div class="ovscores">
-      <div class="ovscore"><div class="ovscoren">${(e.scores && e.scores.depth) || '—'}</div><div class="ovscorel">Impact depth</div></div>
-      <div class="ovscore"><div class="ovscoren">${(e.scores && e.scores.sustain) || '—'}</div><div class="ovscorel">Sustainability</div></div>
-      <div class="ovscore"><div class="ovscoren">${(e.scores && e.scores.why) || '—'}</div><div class="ovscorel">WHY clarity</div></div>
-      <div class="ovscore"><div class="ovscoren">${(e.scores && e.scores.data) || '—'}</div><div class="ovscorel">Data quality</div></div>
-      <div class="ovscore" style="grid-column:span 2"><div class="ovscoren"><span class="sbadge ${sbCls(s)}">${s}/25</span></div><div class="ovscorel">Total score</div></div>
-    </div>`: ''}
-    <div style="margin-top:16px;display:flex;gap:8px">
-      <button class="btn danger" onclick="delEntry('${e.id}')" style="flex:1;font-size:11px">Remove</button>
-      <button class="btn" onclick="G('overlay').classList.remove('on')" style="flex:1;font-size:11px">Close</button>
-    </div>`;
-      G('overlay').classList.add('on');
-    };
+function toggleEditMode(docId) {
+  const card = g('overlayCard');
+  const isEditing = card.classList.toggle('ov-edit-mode');
+  const btn = card.querySelector('.ov-edit-toggle');
+  btn.textContent = isEditing ? 'done' : 'edit';
+  
+  const buttonsDiv = g('ov-buttons');
+  if (isEditing) {
+    g('ov-scores-view').style.display = 'none';
+    g('ov-scores-edit').style.display = 'block';
+    buttonsDiv.innerHTML = `
+      <button class="btn" onclick="cancelEdit()" style="flex:1;font-size:11px">Cancel</button>
+      <button class="btn primary" onclick="saveEdit('${docId}')" style="flex:1;font-size:11px">Save changes</button>`;
+  } else {
+    g('ov-scores-view').style.display = 'grid';
+    g('ov-scores-edit').style.display = 'none';
+    const e = entries.find(x => x._docId === docId);
+    buttonsDiv.innerHTML = `
+      <button class="btn danger" onclick="delEntry('${docId}')" style="flex:1;font-size:11px">Remove</button>
+      <button class="btn" onclick="g('overlay').classList.remove('on')" style="flex:1;font-size:11px">Close</button>`;
+  }
+}
 
-    // ── Analysis ──
-    function renderAnalysis() {
-      const el = G('analysisContent');
-      if (!entries.length) { el.innerHTML = '<div class="empty">No teams yet.\nScout some teams to see analysis.</div>'; return; }
-      const sorted = [...entries].sort((a, b) => (b.total || 0) - (a.total || 0));
-      const scored = sorted.filter(e => e.total > 0);
+function cancelEdit() {
+  const card = g('overlayCard');
+  card.classList.remove('ov-edit-mode');
+  const btn = card.querySelector('.ov-edit-toggle');
+  btn.textContent = 'edit';
+  const docId = btn.parentElement.closest('.overlay-card').querySelector('.btn.danger').onclick.toString().match(/'([^']+)'/)[1];
+  toggleEditMode(docId);
+}
 
-      const topHtml = (scored.length ? scored : sorted).slice(0, 5).map((e, i) => {
-        const s = e.total || 0, tags = getBuckets(e).slice(0, 3), q = e.notes || e.why;
-        return `<div class="toprow">
-      <div class="toprank">${i + 1}</div>
-      <div class="topinfo">
-        <div class="topname">#${X(e.num)} ${X(e.name)} <span class="sbadge ${sbCls(s)}" style="font-size:10px">${s > 0 ? s + '/25' : 'unscored'}</span></div>
-        <div class="topdetail">${[e.region, e.reach].filter(Boolean).map(X).join(' · ')}${tags.length ? ' · ' + tags.join(', ') : ''}</div>
-        ${q ? `<div class="topquote">${X(q.slice(0, 120))}${q.length > 120 ? '...' : ''}</div>` : ''}
+async function saveEdit(docId) {
+  if (!db || !currentRoom) { toast('Not connected to a room', true); return; }
+  const e = entries.find(x => x._docId === docId);
+  if (!e) return;
+
+  const updated = {
+    ...e,
+    what: g('ov-edit-what')?.value || e.what,
+    why: g('ov-edit-why')?.value || e.why,
+    how: g('ov-edit-how')?.value || e.how,
+    data: g('ov-edit-data')?.value || e.data,
+    audience: g('ov-edit-audience')?.value || e.audience,
+    scale: g('ov-edit-scale')?.value || e.scale,
+    notes: g('ov-edit-notes')?.value || e.notes,
+  };
+
+  // Collect scores
+  const fields = ['depth', 'sustain', 'why', 'data', 'overall'];
+  fields.forEach(f => {
+    const pills = g('ov-edit-' + f + '-pills');
+    if (pills) {
+      const selected = pills.querySelector('.ov-edit-pill.on');
+      if (selected) updated.scores[f] = parseInt(selected.textContent);
+    }
+  });
+  
+  // Recalculate total
+  updated.total = Object.values(updated.scores).reduce((s, v) => s + v, 0);
+
+  try {
+    await updateDoc(doc(db, 'rooms', currentRoom, 'entries', docId), updated);
+    toast('Changes saved!');
+    g('overlay').classList.remove('on');
+  } catch(e) {
+    console.error(e);
+    toast('Save failed', true);
+  }
+}
+
+async function delEntry(docId) {
+  if (!confirm('Remove this team from the shared room?')) return;
+  try {
+    await deleteDoc(doc(db, 'rooms', currentRoom, 'entries', docId));
+    g('overlay').classList.remove('on');
+    toast('Removed');
+  } catch(e) {
+    console.error(e);
+    toast('Delete failed', true);
+  }
+}
+
+async function clearAll() {
+  if (!confirm('Remove ALL teams from this room? This affects everyone.')) return;
+  try {
+    const col = collection(db, 'rooms', currentRoom, 'entries');
+    const snap = await getDocs(col);
+    const batch = writeBatch(db);
+    snap.docs.forEach(d => batch.delete(d.ref));
+    await batch.commit();
+    toast('All teams removed');
+  } catch(e) {
+    console.error(e);
+    toast('Clear failed', true);
+  }
+}
+
+function exportCSV() {
+  if (!entries.length) { toast('No data to export', true); return; }
+  const cols = ['Team #','Name','Scout','Region','Reach','What','Audience','Scale','Why','How','Data','Notes','Depth','Sustain','WHY','Data Score','Overall','Total'];
+  const rows = entries.map(e => [
+    e.num, e.name, e.scout, e.region, e.reach,
+    e.what, e.audience, e.scale, e.why, e.how, e.data, e.notes,
+    e.scores.depth, e.scores.sustain, e.scores.why, e.scores.data, e.scores.overall, e.total
+  ].map(v => `"${(v || '').toString().replace(/"/g, '""')}"`).join(','));
+  const csv = [cols.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'impact_scout_' + currentRoom + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+  a.click(); toast('CSV exported!');
+}
+
+// ── Analysis ───────────────────────────────────────────
+function renderAnalysis() {
+  const el = g('analysisContent');
+  if (!entries.length) {
+    el.innerHTML = '<div class="empty">No teams scouted yet.\nAdd teams using the Scout tab to see analysis.</div>';
+    return;
+  }
+
+  const sorted = [...entries].sort((a, b) => b.total - a.total);
+  const scored = sorted.filter(e => e.total > 0);
+
+  const topHtml = (scored.length ? scored : sorted).slice(0, 5).map((e, i) => {
+    const sc = e.total;
+    const cls = sc >= 20 ? 'sb-hi' : sc >= 12 ? 'sb-mid' : sc > 0 ? 'sb-lo' : 'sb-none';
+    const tags = getBuckets(e).slice(0, 3);
+    const quote = e.notes || e.why;
+    return `<div class="top-row">
+      <div class="top-rank">${i + 1}</div>
+      <div class="top-info">
+        <div class="top-name">#${esc(e.num)} ${esc(e.name)} <span class="score-badge ${cls}" style="font-size:10px">${sc > 0 ? sc + '/25' : 'unscored'}</span></div>
+        <div class="top-detail">${[e.region, e.reach].filter(Boolean).map(esc).join(' · ')}${tags.length ? ' · ' + tags.join(', ') : ''}</div>
+        ${quote ? `<div class="top-quote">${esc(quote.slice(0, 120))}${quote.length > 120 ? '...' : ''}</div>` : ''}
       </div>
     </div>`;
-      }).join('');
+  }).join('');
 
-      const bCounts = {}; BUCKETS.forEach(b => bCounts[b.n] = 0);
-      entries.forEach(e => getBuckets(e).forEach(b => bCounts[b] = (bCounts[b] || 0) + 1));
-      const maxB = Math.max(...Object.values(bCounts), 1);
-      const bucketHtml = BUCKETS.map(b => `<div class="brow">
-    <div class="bname">${b.n}</div>
-    <div class="bbg"><div class="bbar" style="width:${Math.round((bCounts[b.n] || 0) / maxB * 100)}%"></div></div>
-    <div class="bct">${bCounts[b.n] || 0}</div>
-  </div>`).join('');
+  const bCounts = {};
+  BUCKETS.forEach(b => bCounts[b.name] = 0);
+  entries.forEach(e => getBuckets(e).forEach(b => bCounts[b] = (bCounts[b] || 0) + 1));
+  const maxB = Math.max(...Object.values(bCounts), 1);
+  const bucketHtml = BUCKETS.map(b => {
+    const c = bCounts[b.name] || 0;
+    return `<div class="bucket-row">
+      <div class="bucket-name">${b.name}</div>
+      <div class="bucket-bar-bg"><div class="bucket-bar" style="width:${Math.round(c / maxB * 100)}%"></div></div>
+      <div class="bucket-ct">${c}</div>
+    </div>`;
+  }).join('');
 
-      const wCounts = {}; WHY_THEMES.forEach(t => wCounts[t.n] = 0);
-      entries.forEach(e => {
-        const txt = ((e.why || '') + ' ' + (e.what || '')).toLowerCase();
-        WHY_THEMES.forEach(t => { if (t.k.some(k => txt.includes(k))) wCounts[t.n]++; });
-      });
-      const themes = WHY_THEMES.filter(t => wCounts[t.n] > 0).sort((a, b) => wCounts[b.n] - wCounts[a.n]);
-      const themeHtml = themes.length ? themes.map(t => `<span class="tchip">${t.n} <strong>(${wCounts[t.n]})</strong></span>`).join('')
-        : '<div style="font-size:12px;color:var(--text3);font-family:var(--mono">Fill WHY fields to surface themes.</div>';
+  const wCounts = {};
+  WHY_THEMES.forEach(t => wCounts[t.name] = 0);
+  entries.forEach(e => {
+    const txt = ((e.why || '') + ' ' + (e.what || '')).toLowerCase();
+    WHY_THEMES.forEach(t => { if (t.keys.some(k => txt.includes(k))) wCounts[t.name]++; });
+  });
+  const activeThemes = WHY_THEMES.filter(t => wCounts[t.name] > 0).sort((a, b) => wCounts[b.name] - wCounts[a.name]);
+  const themeHtml = activeThemes.length
+    ? activeThemes.map(t => `<span class="theme-chip">${t.name} <strong>(${wCounts[t.name]})</strong></span>`).join('')
+    : '<div style="font-size:12px;color:var(--text3);font-family:var(--mono)">Add detail to WHY fields to see themes.</div>';
 
-      const ins = [];
-      if (entries.length < 3) ins.push('Scout more teams for meaningful patterns. Aim for 5+ before drawing conclusions.');
-      const sw = scored.filter(e => e.scores && e.scores.why >= 4);
-      if (sw.length) ins.push(`${sw.length} team${sw.length > 1 ? 's' : ''}  with strong WHY (4–5): ${sw.map(e => '#' + e.num).join(', ')}. Worth a follow-up.`);
-      const holo = scored.filter(e => e.scores && e.scores.overall >= 4 && e.scores.data <= 2);
-      if (holo.length) ins.push(`${holo.length} team${holo.length > 1 ? 's' : ''}  score high overall but low on data (${holo.map(e => '#' + e.num).join(', ')}). Push for numbers.`);
-      const intl = entries.filter(e => e.reach === 'International');
-      if (intl.length) ins.push(`International reach is rare — flag these: ${intl.map(e => '#' + e.num).join(', ')}.`);
-      const ns = entries.filter(e => !e.total || e.total === 0);
-      if (ns.length) ins.push(`${ns.length} unscored team${ns.length > 1 ? 's' : ''}. Add ratings to improve ranking.`);
-      const tb = Object.entries(bCounts).sort((a, b) => b[1] - a[1])[0];
-      if (tb && tb[1] > 1) ins.push(`"${tb[0]}" is the most common program type (${tb[1]} teams). Look for teams doing something different here.`);
-      if (!ins.length) ins.push('Keep scouting — more teams means better patterns.');
+  const insights = [];
+  const n = entries.length;
+  if (n < 3) insights.push('Scout more teams for meaningful patterns. Aim for 5+ before drawing conclusions.');
+  const strongWhy = scored.filter(e => e.scores.why >= 4);
+  if (strongWhy.length) insights.push(`${strongWhy.length} team${strongWhy.length > 1 ? 's have' : ' has'} a strong WHY score (4–5): ${strongWhy.map(e => '#' + e.num).join(', ')}. Worth a follow-up conversation.`);
+  const highOverallLowData = scored.filter(e => e.scores.overall >= 4 && e.scores.data <= 2);
+  if (highOverallLowData.length) insights.push(`${highOverallLowData.length} team${highOverallLowData.length > 1 ? 's score' : ' scores'} high overall but low on data quality (${highOverallLowData.map(e => '#' + e.num).join(', ')}). Push for concrete numbers in a follow-up.`);
+  const intl = entries.filter(e => e.reach === 'International');
+  if (intl.length) insights.push(`${intl.length} team${intl.length > 1 ? 's have' : ' has'} international reach — rare and worth highlighting: ${intl.map(e => '#' + e.num).join(', ')}.`);
+  const noScore = entries.filter(e => e.total === 0);
+  if (noScore.length) insights.push(`${noScore.length} team${noScore.length > 1 ? 's have' : ' has'} no scores yet. Add ratings to improve ranking accuracy.`);
+  const topBucket = Object.entries(bCounts).sort((a, b) => b[1] - a[1])[0];
+  if (topBucket && topBucket[1] > 1) insights.push(`"${topBucket[0]}" is the most common program type (${topBucket[1]} teams). Look for teams doing something meaningfully different here.`);
+  if (!insights.length) insights.push('Keep scouting — more teams means better pattern detection.');
+  const insightHtml = insights.map(i => `<div class="insight-row"><div class="insight-dot"></div><div class="insight-text">${i}</div></div>`).join('');
 
-      el.innerHTML = `
-    <div class="ancard"><div class="anhdr">Top teams by score</div><div class="anbody">${topHtml}</div></div>
-    <div class="ancard"><div class="anhdr">What teams are doing</div><div class="anbody">${bucketHtml}</div></div>
-    <div class="ancard"><div class="anhdr">Common WHY themes</div><div class="anbody" style="padding-top:10px">${themeHtml}</div></div>
-    <div class="ancard"><div class="anhdr">Insights</div><div class="anbody">${ins.map(i => `<div class="irow"><div class="idot"></div><div class="itext">${i}</div></div>`).join('')}</div></div>
+  el.innerHTML = `
+    <div class="an-card"><div class="an-hdr"><div class="an-hdr-title">Top teams by score</div></div><div class="an-body">${topHtml}</div></div>
+    <div class="an-card"><div class="an-hdr"><div class="an-hdr-title">What teams are doing</div></div><div class="an-body">${bucketHtml}</div></div>
+    <div class="an-card"><div class="an-hdr"><div class="an-hdr-title">Common WHY themes</div></div><div class="an-body" style="padding-top:10px">${themeHtml}</div></div>
+    <div class="an-card"><div class="an-hdr"><div class="an-hdr-title">Insights</div></div><div class="an-body">${insightHtml}</div></div>
     <div style="height:8px"></div>`;
-    }
+}
 
-    // ── Export ──
-    window.exportCSV = () => {
-      if (!entries.length) { toast('No data', true); return; }
-      const cols = ['Team #', 'Name', 'Scout', 'Region', 'Reach', 'What', 'Audience', 'Scale', 'Why', 'How', 'Data', 'Notes', 'Depth', 'Sustain', 'WHY', 'Data Score', 'Overall', 'Total'];
-      const rows = entries.map(e => [e.num, e.name, e.scout, e.region, e.reach, e.what, e.audience, e.scale, e.why, e.how, e.data, e.notes,
-      e.scores && e.scores.depth, e.scores && e.scores.sustain, e.scores && e.scores.why, e.scores && e.scores.data, e.scores && e.scores.overall, e.total
-      ].map(v => `"${(v || '').toString().replace(/"/g, '""')}"`).join(','));
-      const a = document.createElement('a');
-      a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent([cols.join(','), ...rows].join('\n'));
-      a.download = 'impact_scout_' + new Date().toISOString().slice(0, 10) + '.csv'; a.click();
-      toast('CSV exported!');
-    };
+// ── Demo data ──────────────────────────────────────────
+async function loadDemo() {
+  if (!db || !currentRoom) { toast('Join a room first', true); return; }
+  if (entries.length && !confirm('This adds 6 demo teams to the shared room. Continue?')) return;
+  const demo = [
+    { num:'2910', name:'Jack in the Bot', scout: currentScout || 'Demo', region:'WA, USA', reach:'Regional',
+      what:'Free summer robotics camp for 80 middle schoolers every year. Mentor 4 FLL teams in rural districts that previously had zero robotics programs.',
+      why:'Our head mentor grew up in a rural town with no engineering programs. Came back 20 years later and saw the same gap still existed — entire zip codes locked out of STEM.',
+      how:'Camp funded through Boeing grant and alumni donations. FLL mentorship is weekly visits to 4 schools. Alumni who went through the program now come back as coaches.',
+      data:'Started 4 FLL teams. 600 students through camp since 2019. 78% of camp alumni join a school STEM club the following year.',
+      audience:'Rural middle schoolers', scale:'~200 students/yr',
+      notes:'"We are not just giving kids robots. We are giving them a future they did not know was possible."',
+      scores:{depth:5,sustain:4,why:5,data:4,overall:5}, total:23 },
+    { num:'1678', name:'Citrus Circuits', scout: currentScout || 'Demo', region:'CA, USA', reach:'National',
+      what:'Open source robot code used by hundreds of FRC teams globally. STEM nights at 12 local schools. Scholarship fund for team alumni going into engineering.',
+      why:'Believe the competitive knowledge of strong teams should be shared freely, not hoarded. Anything they build for themselves should work for everyone.',
+      how:'Software tools maintained by alumni on GitHub. Scholarship funded through annual gala. STEM nights coordinated with local school district.',
+      data:'GitHub repo used by 300+ teams. 12 scholarships awarded to date. 1,200 students reached annually through STEM nights.',
+      audience:'FRC community + K-12', scale:'1200+ students/yr',
+      notes:'Extremely data-driven — could cite exact numbers for every program without hesitation.',
+      scores:{depth:4,sustain:5,why:4,data:5,overall:5}, total:23 },
+    { num:'3015', name:'Ranger Robotics', scout: currentScout || 'Demo', region:'TX, USA', reach:'Local',
+      what:'Free after-school robotics club for girls in 4th–8th grade run in partnership with the local public library.',
+      why:'When the team started, only 2 of 28 members were girls. Decided to actively change it.',
+      how:'Library provides space, team provides mentors and kit materials. Three members dedicate a Saturday per month.',
+      data:'Club now has 40 active members. 3 club alumni joined FRC teams last year.',
+      audience:'Girls, grades 4-8', scale:'40 active members',
+      notes:'Strong emotional WHY. Numbers are early stage — program is only in its second year.',
+      scores:{depth:4,sustain:3,why:5,data:2,overall:4}, total:18 },
+    { num:'4414', name:'HighTide', scout: currentScout || 'Demo', region:'CA, USA', reach:'International',
+      what:'Annual volunteer trip to Ghana to help start FIRST programs at under-resourced schools.',
+      why:'A team member visited Ghana on a service trip and saw schools with nothing. Why is our knowledge staying inside our borders?',
+      how:'Annual trip grant-funded. Curriculum freely downloadable. Ghana teams now self-sustaining after 2 years.',
+      data:'3 FIRST teams started in Ghana — now self-running. Curriculum downloaded 500+ times.',
+      audience:'International + local FTC teams', scale:'3 Ghana teams + 2 local',
+      notes:'One of the most distinctive programs at the event. Genuinely novel approach.',
+      scores:{depth:5,sustain:3,why:5,data:3,overall:5}, total:21 },
+    { num:'6328', name:'Mechanical Advantage', scout: currentScout || 'Demo', region:'MA, USA', reach:'National',
+      what:'Open source robot code and scouting tools used widely in FRC. Local STEM workshops at the library.',
+      why:'Believe that open source accelerates the whole community. What they build should lift everyone.',
+      how:'Code on GitHub, maintained by current students and alumni. Workshops are quarterly.',
+      data:'GitHub repo has 200+ stars. Workshops reach ~150 students per year.',
+      audience:'FRC community + local K-12', scale:'150 students/yr',
+      notes:'Open source work is exceptional but community programs feel secondary.',
+      scores:{depth:3,sustain:4,why:3,data:3,overall:3}, total:16 },
+    { num:'5940', name:'BREAD', scout: currentScout || 'Demo', region:'OH, USA', reach:'Regional',
+      what:'Annual food drive in partnership with 3 local food banks. STEM demos at food bank events.',
+      why:'Community had two overlapping problems: food insecurity and zero STEM awareness.',
+      how:'Food banks provide space and audience. Team provides robot demos and STEM activity kits.',
+      data:'2,000 lbs of food donated annually. Demos reach 400+ families per year.',
+      audience:'Families at food banks', scale:'400 families/yr',
+      notes:'"We go where people are, not where it is convenient for us."',
+      scores:{depth:4,sustain:3,why:5,data:3,overall:4}, total:19 },
+  ];
+  try {
+    const batch = writeBatch(db);
+    demo.forEach(d => {
+      const ref = doc(collection(db, 'rooms', currentRoom, 'entries'));
+      batch.set(ref, { ...d, createdAt: serverTimestamp() });
+    });
+    await batch.commit();
+    toast('6 demo teams loaded!');
+  } catch(e) {
+    console.error(e);
+    toast('Failed to load demo data', true);
+  }
+}
 
-    // ── Demo ──
-    window.loadDemo = async () => {
-      if (entries.length && !confirm('Add 6 demo teams to existing data?')) return;
-      const demo = [
-        { num: '2910', name: 'Jack in the Bot', scout: 'Demo', region: 'WA, USA', reach: 'Regional', what: 'Free summer robotics camp for 80 middle schoolers every year. Mentor 4 FLL teams in rural districts that previously had zero robotics programs.', why: 'Head mentor grew up rural with no engineering programs. Came back 20 years later and saw the same gap — entire zip codes locked out of STEM.', how: 'Camp funded by Boeing grant and alumni donations. FLL mentorship is weekly school visits. Alumni come back as coaches.', data: 'Started 4 FLL teams. 600 students through camp since 2019. 78% of alumni join a STEM club.', audience: 'Rural middle schoolers', scale: '~200/yr', notes: '"We give kids a future they did not know was possible."', scores: { depth: 5, sustain: 4, why: 5, data: 4, overall: 5 }, total: 23 },
-        { num: '1678', name: 'Citrus Circuits', scout: 'Demo', region: 'CA, USA', reach: 'National', what: 'Open source robot code used by hundreds of FRC teams. STEM nights at 12 local schools. Scholarship fund for team alumni.', why: 'Believe competitive knowledge should be freely shared — what they build should lift the whole community.', how: 'Code on GitHub maintained by alumni. Scholarship via annual gala. STEM nights via school district.', data: '300+ FRC teams use their code. 12 scholarships awarded. 1,200 students/yr.', audience: 'FRC community + K-12', scale: '1200+/yr', notes: 'Cited exact numbers for every program instantly.', scores: { depth: 4, sustain: 5, why: 4, data: 5, overall: 5 }, total: 23 },
-        { num: '3015', name: 'Ranger Robotics', scout: 'Demo', region: 'TX, USA', reach: 'Local', what: 'Free after-school robotics club for girls grades 4-8 with local library. Demo days at community events.', why: 'Only 2 of 28 members were girls at start. Saw STEM in their district was almost entirely male. Decided to fix it.', how: 'Library provides space, team provides mentors and kits. Three members volunteer every Saturday.', data: '40 active members. 3 alumni joined FRC teams last year.', audience: 'Girls grades 4-8', scale: '40 members', notes: 'Strong emotional WHY. Second year running — numbers still early.', scores: { depth: 4, sustain: 3, why: 5, data: 2, overall: 4 }, total: 18 },
-        { num: '4414', name: 'HighTide', scout: 'Demo', region: 'CA, USA', reach: 'International', what: 'Annual volunteer trip to Ghana to start FIRST programs. Mentor 2 FTC teams locally. Free curriculum for schools with no robotics budget.', why: 'Team member visited Ghana and saw schools with nothing. Asked: why is our knowledge staying inside our borders?', how: 'Trip grant-funded. Curriculum downloadable free. Ghana teams now self-sustaining.', data: '3 FIRST teams started in Ghana. Curriculum downloaded 500+ times. 2 local FTC teams mentored.', audience: 'International + local FTC', scale: '3 Ghana teams + 2 local', notes: 'Most distinctive program at the event.', scores: { depth: 5, sustain: 3, why: 5, data: 3, overall: 5 }, total: 21 },
-        { num: '6328', name: 'Mechanical Advantage', scout: 'Demo', region: 'MA, USA', reach: 'National', what: 'Open source robot code and scouting tools used widely in FRC. Quarterly library STEM workshops. 1 FLL team mentored informally.', why: 'Open source accelerates the whole community, not just their team.', how: 'Code on GitHub. Workshops quarterly. FLL mentorship student-led.', data: '200+ GitHub stars. ~150 students/yr through workshops.', audience: 'FRC community + K-12', scale: '150/yr', notes: 'Open source work exceptional but community programs feel secondary.', scores: { depth: 3, sustain: 4, why: 3, data: 3, overall: 3 }, total: 16 },
-        { num: '5940', name: 'BREAD', scout: 'Demo', region: 'OH, USA', reach: 'Regional', what: 'Annual food drive with 3 local food banks. Robot demos at food bank events to reach families who would never otherwise see robotics.', why: 'Community had food insecurity AND zero STEM awareness. Go where families already are instead of expecting them to come to robotics.', how: 'Food banks provide space, team brings demos and activity kits.', data: '2,000 lbs food/yr. 400 families reached. 1 FLL team started from a family they met.', audience: 'Families at food banks', scale: '400 families/yr', notes: '"We go where people are, not where it is convenient."', scores: { depth: 4, sustain: 3, why: 5, data: 3, overall: 4 }, total: 19 },
-      ];
-      for (const d of demo) await addDoc(ref, { ...d, createdAt: serverTimestamp() });
-      toast('6 demo teams loaded!');
-    };
+// ── Helpers ────────────────────────────────────────────
+function g(id) { return document.getElementById(id); }
+function esc(s) { return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toast(msg, warn) {
+  const t = g('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (warn ? ' warn' : '') + ' show';
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
 
-    // ── Helpers ──
-    window.G = id => document.getElementById(id);
-    function G(id) { return document.getElementById(id); }
-    function X(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-    window.toast = (msg, warn) => {
-      const t = G('toast'); t.textContent = msg;
-      t.className = 'toast' + (warn ? ' warn' : '') + ' show';
-      setTimeout(() => t.classList.remove('show'), 2600);
-    };
-    G('overlay').addEventListener('click', function (e) { if (e.target === this) this.classList.remove('on'); });
-  </script>
+// Close overlay on bg tap
+g('overlay').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('on');
+});
+
+// Enter key in room code input
+g('ri-code').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
+g('ri-name').addEventListener('keydown', e => { if (e.key === 'Enter') g('ri-code').focus(); });
+
+// Init count
+updateCount();
+</script>
+
 </body>
-
 </html>
